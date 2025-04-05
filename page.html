@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Perfil com Ondas Locais</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+      background: linear-gradient(to top, #6fb1fc, #4364f7);
+    }
+
+    .wave-container {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    svg {
+      width: 200%;
+      height: 100%;
+      animation: waveMove 8s linear infinite;
+    }
+
+    .wave2 {
+      position: absolute;
+      bottom: 0;
+      opacity: 0.5;
+      animation-delay: -4s;
+    }
+
+    @keyframes waveMove {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-align: center;
+    }
+
+    .profile-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid white;
+      margin-bottom: 20px;
+    }
+
+    .name {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .desc {
+      font-size: 16px;
+      color: #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="content">
+    <img class="profile-img" src="/res/img.jfif" alt="Foto de Perfil">
+    <div class="name">Hernan Dias</div>
+    <div class="desc">Desenvolvedor | Portfólio</div>
+  </div>"
+
+</body>
+</html>
