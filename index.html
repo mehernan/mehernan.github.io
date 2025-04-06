@@ -6,85 +6,97 @@
     <title>Hernan Dias</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        html, body{
-            /*background: url("/res/image.jpg");
-            background-repeat: no-repeat;
-            background-size: auto;*/
+        html, body {
             background-color: #6fb1fc;
         }
-        .s1{
-          box-shadow: 0 0 1rem;
+        .s1 {
+            box-shadow: 0 0 1rem;
         }
         .s2 {
-          border: 0;
+            border: 0;
+        }
+        section {
+            padding: 2rem 0;
         }
     </style>
 </head>
 <body>
-    <div class="container mt-5 ">
-        <div class="card text-center  s1">
+    <div class="container mt-5" style="margin-bottom: 3rem;">
+        <div class="card text-center s1">
             <div class="card-header bg-dark text-white">
-                <h2>Olá, aqui é me.hernan!</h2>
+                <h2>Olá, aqui é <i>me.hernan!</i></h2>
                 <h3>Vou te mostrar alguns dos meus projetos</h3>
             </div>
             <div class="card-header">
                 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                    
-                    <nav class="navbar navbar-expand-lg navbar-text bg-light">
-                        
-                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Alterna navegação">
-                          <span class="navbar-toggler-icon"></span>
-                        </button>
-                      
-                        <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-                          <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                            <li class="nav-item active">
-                              <a class="nav-link" href="#">Home</a>
-                            </li>
-                            <li class="nav-item">
-                              <a class="nav-link" href="#2">Link</a>
-                            </li>
-                            <li class="nav-item">
-                              <a class="nav-link disabled" href="#">Desativado</a>
-                            </li>
-                          </ul>
-                        </div>
-                      </nav>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Alternar navegação">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarToggler">
+                        <ul class="navbar-nav mx-auto">
+                            <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#tecnologia">Tecnologia e Níveis</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#projetos">Projetos</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#jogos">Jogos</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#downloads">Downloads</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#contatos">Contatos</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#redes">Redes</a></li>
+                        </ul>
+                    </div>
+                </nav>
             </div>
             <div class="card-body s2">
-                <img src="./res/img.jfif" width="64px" class="rounded-circle mb-3" alt="Foto de Perfil">
+                <img src="./res/img.jfif" width="64" class="rounded-circle mb-3" alt="Foto de Perfil">
                 <h3>Hernan Dias</h3>
-                <p class="text-muted">Meu nome é Hernan tenho 25 anos e gosto de programar coisas, principalmente na web.</p>
-                <p>Se quiser entrar em contato comigo o meu email está logo abaixo junto com minhas redes sociais!</p>
+                <p class="text-muted">Meu nome é Hernan, tenho 25 anos e gosto de programar coisas, principalmente na web.</p>
+                <p>Se quiser entrar em contato comigo, meu email está logo abaixo junto com minhas redes sociais!</p>
                 <p><strong>Email:</strong> <a href="mailto:open.hernandocarmo@gmail.com">open.hernandocarmo@gmail.com</a></p>
             </div>
-            <div class="card-body bg-dark text-white" id="2">
-                
-                <h3>Formação</h3>
-                <p>Tecnico em informática pelo: Instituto Federal de Sergipe [2016-2018]</p>
-                <p><b>Disciplinas</b>
-                <br>Algoritmo
-                <br>Hardware
-                <br>Engenharia de Software
-                <br>Redes de Computadores
-                <br>Front End [HTML, CSS, JavaScript]
-                <br>Java
-                <br>MySQL, PostgreSQL
-                </p>
-                <p><strong>Email:</strong> <a href="mailto:open.hernandocarmo@gmail.com">open.hernandocarmo@gmail.com</a></p>
+
+            <div class="card-body bg-dark text-white" id="tecnologia">
+                <h3>Tecnologia e Níveis</h3>
+                <ul class="text-start">
+                    <li>HTML, CSS, JavaScript - Intermediário</li>
+                    <li>Java - Intermediário</li>
+                    <li>MySQL / PostgreSQL - Básico</li>
+                    <li>Engenharia de Software - Intermediário</li>
+                    <li>Redes de Computadores - Básico</li>
+                    <li>Hardware / Manutenção - Intermediário</li>
+                </ul>
             </div>
-            <div class="card-footer bg-dark text-white">
-                <div class="d-flex justify-content-center gap-3">
+
+            <div class="card-body bg-light" id="projetos">
+                <h3>Projetos</h3>
+                <p>Veja meus projetos disponíveis no GitHub. A maioria deles é voltada para desenvolvimento web e automações.</p>
+                <a href="https://mehernan.github.io" class="btn btn-dark">Ver Projetos</a>
+            </div>
+
+            <div class="card-body bg-white" id="jogos">
+                <h3>Jogos</h3>
+                <p>Em breve estarei compartilhando aqui jogos simples que desenvolvi como hobby, utilizando HTML5 e Unity.</p>
+            </div>
+
+            <div class="card-body bg-light" id="downloads">
+                <h3>Downloads</h3>
+                <p>Você poderá baixar projetos, slides de aulas e utilitários aqui. Disponibilizarei em breve.</p>
+            </div>
+
+            <div class="card-body bg-white" id="contatos">
+                <h3>Contatos</h3>
+                <p><strong>Email:</strong> <a href="mailto:open.hernandocarmo@gmail.com">open.hernandocarmo@gmail.com</a></p>
+                <p><strong>WhatsApp:</strong> <a href="https://wa.me/SEUNUMERO">Clique para conversar</a></p>
+            </div>
+
+            <div class="card-footer bg-dark text-white" id="redes" style="padding-bottom: 1rem;">
+                <h3>Redes</h3>
+                <div class="d-flex justify-content-center gap-3 mt-3 flex-wrap">
                     <a href="https://www.linkedin.com/in/me-hernan/" class="btn btn-primary">LinkedIn</a>
-                    <a href="https://mehernan.github.io" class="btn btn-dark border-1 border-light">GitHub</a>
-                    <a href="https://instagram.com/me.hernan" class="btn btn-info">Instagram</a>
+                    <a href="https://mehernan.github.io" class="btn btn-secondary">GitHub</a>
+                    <a href="https://instagram.com/me.hernan" class="btn btn-info text-white">Instagram</a>
                 </div>
             </div>
-            
         </div>
-        <div style="margin-top: 3rem;"></div>
     </div>
-    <br>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
