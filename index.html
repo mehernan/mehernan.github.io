@@ -13,6 +13,8 @@
         html, body {
             background-color: #000;
             animation: animation 4s linear 2s infinite alternate;
+            /*background: url("res/bg.jpg");
+            background-size: 25%;*/
         }
         @Keyframes animation {
           0% {
@@ -24,6 +26,8 @@
           100% {
             background-color: #000;
           }
+          
+          
         }
         a{
           margin-top:0.2rem;
@@ -58,6 +62,12 @@
         .footer-text {
             margin-top: 1rem;
         }
+        
+        .bg-1 {
+          background: url("res/bg.jpg");
+          background-size: 20%;
+        }
+        
         #tecnologia {
           background: url("/res/bg-codigo.jpg");
           background-repeat: no-repeat;
@@ -72,7 +82,7 @@
     <div class="container mt-5 mb-5">
         <div class="card text-center s1">
             <!-- Header -->
-            <div class="card-header bg-dark text-white header-principal">
+            <div class="card-header bg-dark text-white header-principal bg-1">
                 <h2>Olá, aqui é <b>Hernan</b></h2>
                 <h3 class="fs-5">Vou te mostrar um pouco sobre mim</h3>
             </div>
@@ -181,7 +191,7 @@
             </div>
 
             <!-- Rodapé -->
-            <div class="card-footer bg-dark text-white" id="redes">
+            <div class="card-footer bg-dark text-white bg-1" id="redes">
                 <h3>Redes</h3>
                 <div class="d-flex justify-content-center gap-3 mt-3 flex-wrap">
                     <a href="https://www.linkedin.com/in/me-hernan/" class="btn btn-primary">LinkedIn</a>
