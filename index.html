@@ -90,6 +90,7 @@
           }
         }
         
+        
         #tecnologia {
           background: url("/res/bg-codigo.jpg");
           background-repeat: no-repeat;
@@ -104,7 +105,13 @@
           background: url("res/bg_ifs.png");
           background-size: cover;
         }
-        
+        .bg-4 {
+          background: url("res/bg-game3.jpg");
+          background-size: 50%;
+          font-weight: bold;
+          /*background-repeat: ;*/
+          
+        }
     </style>
 </head>
 <body>
@@ -140,7 +147,7 @@
             <!-- Sobre -->
             <div class="card-body s2 pt-4 pb-4 bg-2">
                 <div class="card-body pt-2">
-                  <img src="./res/img.jfif" class="rounded-circle mb-3 perfil-img" alt="Foto de Perfil">
+                  <img src="./res/img.jfif" class="rounded-circle mb-3 perfil-img" alt="Foto de Perfil" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#modalPerfil">
                 <h3>Hernan Dias</h3>
                 </div>
                 <div class="card-body pt-2">
@@ -179,7 +186,7 @@
             </div>
 
             <!-- Jogos -->
-            <div class="card-body bg-white justify-content-center section-padding" id="jogos">
+            <div class="card-body bg-white justify-content-center section-padding bg-4" id="jogos">
                 <h3>Jogos</h3>
                 <p>Em breve estarei compartilhando aqui jogos simples que desenvolvi como hobby, utilizando HTML5 e Unity.</p>
                 <div id="carouselJogos" class="carousel slide mt-4 m-auto w-75 align-items-center" data-bs-ride="carousel">
@@ -209,7 +216,7 @@
             <div class="card-body bg-light section-padding" id="downloads">
                 <h3>Downloads</h3>
                 <p>Você poderá baixar projetos, slides de aulas e utilitários aqui. Disponibilizarei em breve.</p>
-                <a href="https://hernandias.itch.io/" class="btn btn-secondary">Ver Jogos</a>
+                <a href="https://hernroundedandias.itch.io/" class="btn btn-secondary">Ver Jogos</a>
              <!-- <a href="#" class="btn btn-secondary">Portifólio</a><tag>-->
                 </tag>
             </div>
@@ -234,5 +241,21 @@
     </div>
 
     <script src="/res/bootstrap.bundle.min.js"></script>
+    
+      <!-- Modal da Foto de Perfil -->
+  <div class="modal fade" id="modalPerfil" tabindex="-1" aria-labelledby="modalPerfilLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-white" id="modalPerfilLabel">Foto de Perfil</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img src="./res/img.jfif" class="img-fluid rounded" alt="Foto de Perfil Ampliada">
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Background By: Alex Forger -->
 </body>
 </html>
