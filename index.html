@@ -76,31 +76,38 @@
     <div class="container mt-5 mb-5">
         <div class="card text-center s1 bg-dark text-white">
             <!-- Header -->
-            <div class="card-header bg-dark text-white header-principal bg-1">
-                <h2>Olá, aqui é <b>Hernan</b></h2>
-                <h3 class="fs-5">Vou te mostrar um pouco sobre mim</h3>
-            </div>
+            <div class="card-header bg-dark text-white header-principal bg-1 position-relative" id="headerPrincipal">
+    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" aria-label="Fechar" onclick="fecharHeader()"></button>
+    
+    <h2>Olá, aqui é <b>Hernan</b></h2>
+    <h3 class="fs-5">Vou te mostrar um pouco sobre mim</h3>
+</div>
 
             <!-- Navbar -->
-            <div class="card-header bg-dark">
-                <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarToggler">
-                        <ul class="navbar-nav mx-auto">
-                            <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#formacao">Formação</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#tecnologia">Tecnologia e Níveis</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#projetos">Projetos</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#jogos">Jogos</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#downloads">Downloads</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#contatos">Contatos</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#redes">Redes</a></li>
-                        </ul>
-                    </div>
-                </nav>
-            </div>
+            <!-- Navbar -->
+<div class="card-header bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarToggler">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="#formacao">Formação</a></li>
+                <li class="nav-item"><a class="nav-link" href="#tecnologia">Tecnologia e Níveis</a></li>
+                <li class="nav-item"><a class="nav-link" href="#projetos">Projetos</a></li>
+                <li class="nav-item"><a class="nav-link" href="#jogos">Jogos</a></li>
+                <li class="nav-item"><a class="nav-link" href="#downloads">Downloads</a></li>
+                <li class="nav-item"><a class="nav-link" href="#contatos">Contatos</a></li>
+                <li class="nav-item"><a class="nav-link" href="#redes">Redes</a></li>
+                <li class="nav-item">
+                    <!-- Botão para restaurar o cabeçalho -->
+                    <button class="btn btn-outline-light" onclick="restaurarHeader()">Restaurar Cabeçalho</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</div>
 
             <!-- Sobre -->
             <div class="card-body s2 pt-4 pb-4 bg-2">
@@ -189,7 +196,7 @@
 <div class="card-footer bg-dark text-white bg-1" id="redes">
     <h3>Redes</h3>
     <div class="d-flex justify-content-center gap-5 mt-3 flex-wrap fs-1">
-        <a href="https://www.linkedin.com/in/me-hernan/" class="text-light" target="_blank">
+        <a href="https://www.linkedin.com/in/me-hernan/" class="text-primary" target="_blank">
             <i class="bi bi-linkedin"></i>
         </a>
         <a href="https://github.com/mehernan" class="text-light" target="_blank">
@@ -207,7 +214,33 @@
     <script src="/res/bootstrap.bundle.min.js"></script>
     <script>
         document.getElementById("anoAtual").textContent = new Date().getFullYear();
-    </script>
+        
+        // Função para fechar e salvar preferência no cache
+        function fecharHeader() {
+            document.getElementById("headerPrincipal").style.display = "none";
+            localStorage.setItem("headerVisivel", "nao");
+        }
+        
+    // Função para fechar e salvar preferência no cache
+    function fecharHeader() {
+        document.getElementById("headerPrincipal").style.display = "none";
+        localStorage.setItem("headerVisivel", "nao");
+    }
+
+    // Função para restaurar o cabeçalho e salvar preferência no cache
+    function restaurarHeader() {
+        document.getElementById("headerPrincipal").style.display = "block";
+        localStorage.setItem("headerVisivel", "sim");
+    }
+
+    // Ao carregar, verifica se o header deve ser exibido
+    window.addEventListener("DOMContentLoaded", function() {
+        const visivel = localStorage.getItem("headerVisivel");
+        if (visivel === "nao") {
+            document.getElementById("headerPrincipal").style.display = "none";
+        }
+    });
+</script>
 
     <!-- Modal da Foto de Perfil -->
     <div class="modal fade" id="modalPerfil" tabindex="-1" aria-labelledby="modalPerfilLabel" aria-hidden="true">
