@@ -282,7 +282,7 @@ code {
     }
 
         function toggleTheme() {
-            const current = localStorage.getItem('theme') || 'light-dark';
+            const current = localStorage.getItem('theme') || 'light-mode';
             const newTheme = current === 'light-mode' ? 'dark-mode' : 'light-mode';
             setTheme(newTheme);
         }
