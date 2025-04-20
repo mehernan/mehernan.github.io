@@ -59,6 +59,20 @@
         .dark-mode .theme-toggle i {
             color: #fff;
         }
+        #apoio {
+    display: none;
+    margin-top: 10px;
+}
+
+button #apoiobtn {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+code {
+    word-break: break-all;
+}
     </style>
 </head>
 <body class="light-mode">
@@ -90,17 +104,28 @@
                 <ul id="taskList" class="list-group"></ul>
 
                 <div class="d-flex justify-content-center gap-5 mt-5 flex-wrap fs-1">
-                    <a href="https://www.linkedin.com/in/me-hernan/" class="text-primary" target="_blank"><i class="bi bi-linkedin"></i></a>
-                    <a href="https://github.com/mehernan" class="text-dark" target="_blank"><i class="bi bi-github"></i></a>
-                    <a href="https://instagram.com/me.hernan" class="text-dark" target="_blank"><i class="bi bi-instagram"></i></a>
+                 <a href="https://www.linkedin.com/in/me-hernan/" class="text-primary" target="_blank"><i class="bi bi-linkedin"></i></a>
+                <a href="https://github.com/mehernan" class="text-dark" target="_blank"><i class="bi bi-github"></i></a>
+                <a href="https://instagram.com/me.hernan" class="text-dark" target="_blank"><i class="bi bi-instagram"></i></a>
                 </div>
-                <p class="mt-1 text-center"><b>&copy; <span id="anoAtual"></span> - by Hernan Dias</b></p>
+            <p class="mt-1 text-center"><b>&copy; <span id="anoAtual"></span> - by Hernan Dias</b>
+            </p>
+            </div>
+            <div class="container d-flex justify-content-center mb-2">
+                 <button id="apoiobtn" class="btn btn-success" onclick="toggleApoio()">Quero Apoiar</button>
+            </div>
+            <div id="apoio" class="container">
+                <p class="text-center mt-1" style="font-size: small;">
+                    PIX:<br>
+                    <code>64aba4b2-a746-4414-a755-67cdc71a57a5</code><br />
+                    BTC:<br>
+                    <code>bc1q9ntj7q4fvgl54u4qhe5vsyfy2wc6t622r2ftr5</code><br />
+                    Lightning:<br>
+                    <code>LNURL1DP68GURN8GHJ7AMPD3KX2AR0VEEKZAR0WD5XJTNRDAKJ7TNHV4KXCTTTDEHHWM30D3H82UNVWQHKZMN8V4KXJCMND4JKCMPKXG5SU5PZ</code>
+                </p>
             </div>
         </div>
-    </div>
-
-    <div style="margin-bottom: 3rem;"></div>
-
+        
     <script>
         let currentList = localStorage.getItem("currentList") || "Padrão";
 
@@ -111,6 +136,12 @@
             loadLists();
             loadTasks();
         });
+        
+        function toggleApoio() {
+    const div = document.getElementById('apoio');
+    const isHidden = window.getComputedStyle(div).display === 'none';
+    div.style.display = isHidden ? 'block' : 'none';
+}
 
         function loadLists() {
             const listSelector = document.getElementById("listSelector");
