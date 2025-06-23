@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Jogo de Cartas Simples</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #e0e0e0;
+    }
+
+    .campo {
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .deck, .mao {
+      display: flex;
+      flex-direction: row;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .deck {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .carta {
+      aspect-ratio: 2/3;
+      width: 80px;
+      background: linear-gradient(145deg, #ffffff, #dddddd);
+      border: 2px solid #333;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      cursor: grab;
+      user-select: none;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+      transition: transform 0.2s;
+    }
+
+    .carta.dragging {
+      opacity: 0.6;
+      transform: rotate(5deg) scale(1.1);
+    }
+
+    .mesa {
+      width: 90%;
+      height: 300px;
+      border: 2px dashed #666;
+      border-radius: 12px;
+      background: #fff;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      transition: background-color 0.3s;
+      margin: 10px 0;
+    }
+
+    .mesa.hovered {
+      background-color: #d8ffd8;
+      border-color: #6c6;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Deck do oponente -->
+<div class="campo" id="campoTopo">
+  <div class="deck" id="deckOponente">
+    <div class="carta" draggable="false">Deck</div>
+  </div>
+</div>
+
+<!-- Mesa para jogar cartas -->
+<div class="mesa" id="mesa">
+  Solte aqui para jogar a carta
+</div>
+
+<!-- Deck do jogador e mão do jogador -->
+<div class="campo" id="campoBaixo">
+  <div class="deck" id="deckJogador">
+    <div class="carta" draggable="false">Deck</div>
+  </div>
+  <div class="mao" id="maoJogador">
+    <!-- Cartas iniciais -->
+  </div>
+</div>
+
+<script>
+  const mesa = document.getElementById('mesa');
+  const maoJogador = document.getElementById('maoJogador');
+  const deckJogador = [
+    "Carta 5", "Carta 6", "Carta 7", "Carta 8", "Carta 9", "Carta 10"
+  ]; // Baralho do jogador
+
+  // Função para criar carta
+  function criarCarta(texto) {
+    const carta = document.createElement('div');
+    carta.className = 'carta';
+    carta.textContent = texto;
+    carta.setAttribute('draggable', 'true');
+
+    carta.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', e.target.id);
+      carta.classList.add('dragging');
+    });
+
+    carta.addEventListener('dragend', () => {
+      carta.classList.remove('dragging');
+    });
+
+    return carta;
+  }
+
+  // Comprar carta do deck
+  function comprarCarta() {
+    if (deckJogador.length > 0) {
+      const novaCarta = criarCarta(deckJogador.shift());
+      novaCarta.id = `carta${Math.random()}`;
+      maoJogador.appendChild(novaCarta);
+    }
+  }
+
+  // Inicializar mão (4 cartas)
+  function inicializarMao() {
+    for (let i = 1; i <= 4; i++) {
+      const carta = criarCarta(`Carta ${i}`);
+      carta.id = `carta${i}`;
+      maoJogador.appendChild(carta);
+    }
+  }
+
+  inicializarMao();
+
+  // Área da mesa aceita cartas
+  mesa.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    mesa.classList.add('hovered');
+  });
+
+  mesa.addEventListener('dragleave', () => {
+    mesa.classList.remove('hovered');
+  });
+
+  mesa.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const id = e.dataTransfer.getData('text/plain');
+    const carta = document.getElementById(id);
+    if (carta && carta.parentElement === maoJogador) {
+      mesa.appendChild(carta);
+      comprarCarta(); // Compra uma nova carta após jogar
+    }
+    mesa.classList.remove('hovered');
+  });
+</script>
+
+</body>
+</html>
