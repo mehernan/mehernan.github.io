@@ -1,0 +1,4652 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DOCE SONHO</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --pdv-primary: #6f42c1;
+            --pdv-bg: #f5f5f9;
+        }
+
+        body {
+            background: var(--pdv-bg);
+            padding-bottom: 92px;
+        }
+
+        .app-header {
+            background: var(--pdv-primary);
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .product-card {
+            cursor: pointer;
+            transition: transform .15s, box-shadow .15s;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 .35rem 1rem rgba(0,0,0,.10);
+        }
+
+        .product-img {
+            height: 150px;
+            width: 100%;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        .product-placeholder {
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eee;
+            font-size: 3rem;
+        }
+
+        .bottom-total {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1040;
+            background: #fff;
+            border-top: 1px solid #ddd;
+            box-shadow: 0 -3px 15px rgba(0,0,0,.08);
+        }
+
+        .cart-scroll {
+            max-height: 42vh;
+            overflow-y: auto;
+        }
+
+        .nav-pills .nav-link {
+            white-space: nowrap;
+        }
+
+        .table-responsive {
+            border-radius: .5rem;
+        }
+
+        .stock-warning {
+            color: #b45309;
+        }
+
+        .stock-danger {
+            color: #b91c1c;
+        }
+
+        .modal-body {
+            max-height: 75vh;
+            overflow-y: auto;
+        }
+
+        /* Feedback visual ao adicionar item ao carrinho */
+        .cart-add-feedback {
+            position: fixed;
+            top: 76px;
+            left: 50%;
+            transform: translate(-50%, -12px);
+            z-index: 2000;
+            max-width: calc(100vw - 28px);
+            padding: .75rem 1rem;
+            border-radius: .75rem;
+            background: #198754;
+            color: #fff;
+            box-shadow: 0 .5rem 1.25rem rgba(0,0,0,.18);
+            font-weight: 600;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity .18s ease, transform .18s ease, visibility .18s;
+        }
+
+        .cart-add-feedback.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, 0);
+        }
+
+        .cart-added-pulse {
+            animation: cartAddedPulse .55s ease;
+        }
+
+        #totalCarrinho.total-added-pulse {
+            animation: totalAddedPulse .55s ease;
+        }
+
+        @keyframes cartAddedPulse {
+            0% { transform: scale(1); }
+            45% {
+                transform: scale(1.008);
+                box-shadow: 0 0 0 .32rem rgba(25,135,84,.20), 0 .35rem 1rem rgba(0,0,0,.10);
+            }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes totalAddedPulse {
+            0% { transform: scale(1); }
+            45% { transform: scale(1.12); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 576px) {
+            .product-img,
+            .product-placeholder {
+                height: 115px;
+            }
+
+            .display-6 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Ajustes para tablets e desktops */
+        @media (min-width: 768px) {
+            .app-header .container-fluid,
+            main.container-fluid,
+            .bottom-total .container-fluid {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+
+            .product-img,
+            .product-placeholder {
+                height: 160px;
+            }
+        }
+
+        /* Layout otimizado para telas desktop 16:9 */
+        @media (min-width: 992px) {
+            body {
+                padding-bottom: 76px;
+            }
+
+            .app-header .container-fluid {
+                max-width: 1680px;
+                margin: 0 auto;
+                padding: .65rem 2rem;
+            }
+
+            main.container-fluid {
+                max-width: 1680px;
+                margin: 0 auto;
+                padding: 1.5rem 2rem !important;
+            }
+
+            #page-venda.page.active {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(350px, 420px);
+                column-gap: 1.5rem;
+                align-items: start;
+            }
+
+            #page-venda > .d-flex:first-child,
+            #page-venda > .input-group,
+            #categoriasVenda,
+            #listaProdutos {
+                grid-column: 1;
+                min-width: 0;
+            }
+
+            #page-venda > .d-flex:first-child {
+                grid-row: 1;
+            }
+
+            #page-venda > .input-group {
+                grid-row: 2;
+            }
+
+            #categoriasVenda {
+                grid-row: 3;
+            }
+
+            #listaProdutos {
+                grid-row: 4;
+            }
+
+            #page-venda > hr {
+                display: none;
+            }
+
+            #carrinhoCard {
+                grid-column: 2;
+                grid-row: 1 / span 4;
+                position: sticky;
+                top: 78px;
+                align-self: start;
+            }
+
+            #carrinhoCard .cart-scroll {
+                max-height: clamp(180px, 30vh, 420px);
+            }
+
+            .bottom-total .container-fluid {
+                max-width: 820px;
+                margin: 0 auto;
+                padding-top: .45rem !important;
+                padding-bottom: .45rem !important;
+            }
+
+            .bottom-total .d-flex {
+                gap: .5rem;
+            }
+
+            .bottom-total .nav-page-btn {
+                min-width: 150px;
+                padding: .5rem 1rem;
+                border-radius: .65rem;
+            }
+
+            .bottom-total .nav-page-btn i {
+                display: inline-block !important;
+                margin-right: .4rem;
+                font-size: 1rem !important;
+            }
+
+            .cart-add-feedback {
+                top: 82px;
+            }
+
+            .modal-dialog-scrollable .modal-body {
+                max-height: 72vh;
+            }
+        }
+
+        /* Mais conteúdo por linha em monitores grandes */
+        @media (min-width: 1400px) {
+            #listaProdutos > .col-lg-3 {
+                flex: 0 0 20%;
+                max-width: 20%;
+            }
+
+            #listaProdutosAdmin > .col-lg-4,
+            #listaCaldas > .col-lg-4 {
+                flex: 0 0 25%;
+                max-width: 25%;
+            }
+
+            #estoqueMassaModal .modal-dialog {
+                max-width: 1100px;
+            }
+        }
+
+        #printArea {
+            display: none;
+        }
+
+        @media print {
+            /*
+             * Na impressão, remova de verdade toda a interface do fluxo da página.
+             * Usar apenas visibility:hidden mantém a altura dos pedidos, modais e menus
+             * e pode gerar dezenas de páginas em branco antes/depois do comprovante.
+             */
+            html,
+            body {
+                width: auto !important;
+                height: auto !important;
+                min-height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                background: #fff !important;
+            }
+
+            body > *:not(#printArea) {
+                display: none !important;
+            }
+
+            #printArea {
+                display: block !important;
+                position: static !important;
+                width: auto !important;
+                height: auto !important;
+                min-height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+
+            #printArea,
+            #printArea * {
+                visibility: visible !important;
+            }
+
+            #printArea table {
+                page-break-inside: auto;
+            }
+
+            #printArea tr {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            #printArea thead {
+                display: table-header-group;
+            }
+
+            #printArea tfoot {
+                display: table-footer-group;
+            }
+
+            @page {
+                margin: 12mm;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="feedbackCarrinho" class="cart-add-feedback" role="status" aria-live="polite">
+    <i class="bi bi-check-circle-fill me-2"></i>
+    <span id="feedbackCarrinhoTexto">Item adicionado ao carrinho</span>
+</div>
+
+<header class="app-header shadow-sm">
+    <div class="container-fluid py-2">
+        <div class="d-flex justify-content-between align-items-center gap-2">
+            <div>
+                <div class="fw-bold fs-5">
+                    <i class="bi bi-shop"></i> DOCE SONHO
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <span id="statusOnlineTopo" class="badge text-bg-secondary d-none d-sm-inline-flex align-items-center gap-1">
+                    <i class="bi bi-cloud-slash"></i> Local
+                </span>
+                <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#backupModal">
+                    <i class="bi bi-database"></i> Dados
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container-fluid py-3">
+
+    <!-- VENDA -->
+    <section id="page-venda" class="page active">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h1 class="h4 mb-0">Nova venda</h1>
+                <small class="text-muted">Selecione os produtos</small>
+            </div>
+            <span class="badge text-bg-light" id="contadorProdutos">0 produtos</span>
+        </div>
+
+        <div class="input-group mb-3">
+            <span class="input-group-text bg-white">
+                <i class="bi bi-search"></i>
+            </span>
+            <input
+                type="search"
+                id="buscaVenda"
+                class="form-control"
+                placeholder="Busca rápida: nome ou descrição do produto"
+                autocomplete="off"
+                aria-label="Buscar produtos na venda"
+            >
+            <button class="btn btn-outline-secondary" type="button" id="btnLimparBuscaVenda" title="Limpar busca">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <ul class="nav nav-pills flex-nowrap overflow-auto mb-3 gap-2" id="categoriasVenda">
+            <li class="nav-item">
+                <button class="nav-link active categoria-btn" data-categoria="Todos">Todos</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link categoria-btn" data-categoria="Tortas">Tortas</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link categoria-btn" data-categoria="Biscoitos">Biscoitos</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link categoria-btn" data-categoria="Bebidas">Bebidas</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link categoria-btn" data-categoria="Outros">Outros</button>
+            </li>
+        </ul>
+
+        <div id="listaProdutos" class="row g-3"></div>
+
+        <hr class="my-4">
+
+        <div class="card shadow-sm" id="carrinhoCard">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong><i class="bi bi-cart3"></i> Carrinho</strong>
+                <button class="btn btn-outline-danger btn-sm" id="btnLimparCarrinho">
+                    Limpar
+                </button>
+            </div>
+
+            <div id="avisoEdicaoPedido" class="alert alert-warning rounded-0 border-start-0 border-end-0 mb-0 d-none">
+                <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                    <div>
+                        <strong><i class="bi bi-pencil-square"></i> Editando pedido</strong>
+                        <div class="small" id="codigoPedidoEmEdicao"></div>
+                    </div>
+                    <button type="button" class="btn btn-outline-dark btn-sm" id="btnCancelarEdicaoPedido">
+                        <i class="bi bi-x-circle"></i> Cancelar edição
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div id="carrinhoVazio" class="p-4 text-center text-muted">
+                    Nenhum item adicionado.
+                </div>
+
+                <div id="listaCarrinho" class="list-group list-group-flush cart-scroll"></div>
+            </div>
+
+            <div class="card-footer">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Subtotal</span>
+                    <strong id="subtotalCarrinho">R$ 0,00</strong>
+                </div>
+
+                <div class="border rounded p-3 bg-light mb-3">
+                    <div class="fw-semibold mb-2">
+                        <i class="bi bi-percent"></i> Desconto / Acréscimo
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-7">
+                            <select id="ajusteTipo" class="form-select form-select-sm">
+                                <option value="">Sem ajuste</option>
+                                <option value="desconto">Desconto</option>
+                                <option value="acrescimo">Acréscimo</option>
+                            </select>
+                        </div>
+                        <div class="col-5">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">R$</span>
+                                <input type="number" id="ajusteValor" class="form-control"
+                                       min="0" step="0.01" value="0" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2 d-none" id="linhaAjusteCarrinho">
+                    <span id="ajusteCarrinhoRotulo">Ajuste</span>
+                    <strong id="ajusteCarrinhoValor">R$ 0,00</strong>
+                </div>
+
+                <div class="d-flex justify-content-between fs-5 fw-bold border-top pt-2">
+                    <span>Total</span>
+                    <span id="totalCarrinho">R$ 0,00</span>
+                </div>
+
+                <button class="btn btn-primary w-100 mt-3" id="btnFinalizar">
+                    <i class="bi bi-check-circle"></i> Finalizar pedido
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRODUTOS -->
+    <section id="page-produtos" class="page">
+        <div class="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
+            <div>
+                <h1 class="h4 mb-0">Produtos</h1>
+                <small class="text-muted">Cadastro e estoque</small>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary" id="btnEstoqueMassa">
+                    <i class="bi bi-boxes"></i> Estoque em massa
+                </button>
+                <button class="btn btn-primary" id="btnNovoProduto">
+                    <i class="bi bi-plus-lg"></i> Novo
+                </button>
+            </div>
+        </div>
+
+        <div id="listaProdutosAdmin" class="row g-3"></div>
+    </section>
+
+    <!-- CALDAS -->
+    <section id="page-caldas" class="page">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h1 class="h4 mb-0">Caldas</h1>
+                <small class="text-muted">Opções para as tortas</small>
+            </div>
+            <button class="btn btn-primary" id="btnNovaCalda">
+                <i class="bi bi-plus-lg"></i> Nova
+            </button>
+        </div>
+
+        <div id="listaCaldas" class="row g-3"></div>
+    </section>
+
+    <!-- PEDIDOS -->
+    <section id="page-pedidos" class="page">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h1 class="h4 mb-0">Pedidos</h1>
+                <small class="text-muted">Reservas registradas</small>
+            </div>
+            <span class="badge text-bg-primary" id="contadorPedidos">0</span>
+        </div>
+
+        <div id="listaPedidos"></div>
+    </section>
+
+    <!-- ARQUIVADOS -->
+    <section id="page-arquivados" class="page">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h1 class="h4 mb-0">Arquivados</h1>
+                <small class="text-muted">Histórico de eventos e pedidos concluídos</small>
+            </div>
+            <span class="badge text-bg-secondary" id="contadorArquivos">0</span>
+        </div>
+
+        <div id="listaArquivos"></div>
+    </section>
+
+</main>
+
+<!-- MENU INFERIOR -->
+<nav class="bottom-total">
+    <div class="container-fluid py-2">
+        <div class="d-flex justify-content-around">
+            <button class="btn btn-sm nav-page-btn text-center" data-page="venda">
+                <i class="bi bi-cart d-block fs-5"></i>
+                Venda
+            </button>
+
+            <button class="btn btn-sm nav-page-btn text-center" data-page="produtos">
+                <i class="bi bi-box-seam d-block fs-5"></i>
+                Produtos
+            </button>
+
+            <button class="btn btn-sm nav-page-btn text-center" data-page="caldas">
+                <i class="bi bi-droplet d-block fs-5"></i>
+                Caldas
+            </button>
+
+            <button class="btn btn-sm nav-page-btn text-center" data-page="pedidos">
+                <i class="bi bi-receipt d-block fs-5"></i>
+                Pedidos
+            </button>
+
+            <button class="btn btn-sm nav-page-btn text-center" data-page="arquivados">
+                <i class="bi bi-archive d-block fs-5"></i>
+                Arquivos
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- MODAL PRODUTO -->
+<div class="modal fade" id="produtoModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <form id="formProduto">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="produtoModalTitulo">Novo produto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" id="produtoId">
+
+                    <div class="mb-3">
+                        <label class="form-label">Nome *</label>
+                        <input type="text" id="produtoNome" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea id="produtoDescricao" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Imagem (URL)</label>
+                        <input type="url" id="produtoImagem" class="form-control" placeholder="https://...">
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label">Valor *</label>
+                            <input type="number" id="produtoValor" class="form-control" min="0" step="0.01" required>
+                        </div>
+
+                        <div class="col-6">
+                            <label class="form-label">Unidade *</label>
+                            <select id="produtoUnidade" class="form-select" required>
+                                <option value="Fatias">Fatias</option>
+                                <option value="Un">Un</option>
+                                <option value="Pote">Pote</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 mt-3">
+                        <label class="form-label">Categoria *</label>
+                        <select id="produtoCategoria" class="form-select" required>
+                            <option value="Tortas">Tortas</option>
+                            <option value="Biscoitos">Biscoitos</option>
+                            <option value="Bebidas">Bebidas</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+
+                    <div id="blocoEstoqueProduto" class="border rounded p-3 bg-light">
+                        <div class="mb-0">
+                            <label class="form-label fw-semibold">Quantidade em estoque *</label>
+                            <input type="number" id="produtoEstoqueFatias" class="form-control" min="0" step="1" value="0" required>
+                            <div class="form-text">
+                                O estoque será reduzido automaticamente quando o pedido for finalizado.
+                            </div>
+                        </div>
+
+                        <div id="blocoCaldasTorta" class="mt-3 pt-3 border-top">
+                            <label class="form-label fw-semibold">Caldas disponíveis</label>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" checked disabled>
+                                <label class="form-check-label">
+                                    Sem Calda
+                                </label>
+                            </div>
+
+                            <div id="checklistCaldasProduto"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Salvar produto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ESTOQUE EM MASSA -->
+<div class="modal fade" id="estoqueMassaModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title">Editar estoque em massa</h5>
+                    <small class="text-muted">Altere várias quantidades e salve tudo de uma vez.</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="input-group mb-3">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="search" id="buscaEstoqueMassa" class="form-control"
+                           placeholder="Buscar produto ou categoria..." autocomplete="off">
+                </div>
+
+                <div id="listaEstoqueMassa"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-success" id="btnSalvarEstoqueMassa">
+                    <i class="bi bi-check2-circle"></i> Salvar estoques
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CALDA -->
+<div class="modal fade" id="caldaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formCalda">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="caldaModalTitulo">Nova calda</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" id="caldaId">
+
+                    <div class="mb-3">
+                        <label class="form-label">Nome *</label>
+                        <input type="text" id="caldaNome" class="form-control" required>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Valor adicional</label>
+                        <input type="number" id="caldaValor" class="form-control" min="0" step="0.01" value="0">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Salvar calda
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL TORTA -->
+<div class="modal fade" id="tortaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formTortaVenda">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title" id="tortaTitulo">Torta</h5>
+                        <small class="text-muted" id="tortaEstoqueTexto"></small>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" id="tortaProdutoId">
+
+                    <div class="mb-3">
+                        <label class="form-label">Quantidade de fatias *</label>
+                        <input type="number" id="tortaQuantidade" class="form-control" min="1" step="1" value="1" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Calda</label>
+                        <select id="tortaCalda" class="form-select">
+                            <option value="">Sem Calda — R$ 0,00</option>
+                        </select>
+                    </div>
+
+                    <div class="alert alert-light border mb-0">
+                        <div class="d-flex justify-content-between">
+                            <span>Preço da fatia</span>
+                            <strong id="tortaPrecoBase">R$ 0,00</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Adicional da calda</span>
+                            <strong id="tortaPrecoCalda">R$ 0,00</strong>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fs-5">
+                            <span>Total</span>
+                            <strong id="tortaTotalLinha">R$ 0,00</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Adicionar ao carrinho
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CLIENTE -->
+<div class="modal fade" id="clienteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formCliente">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clienteModalTitulo">Dados do cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome <span class="text-muted">(opcional)</span></label>
+                        <input type="text" id="clienteNome" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Telefone <span class="text-muted">(opcional)</span></label>
+                        <input type="tel" id="clienteTelefone" class="form-control">
+                    </div>
+
+                    <div>
+                        <label class="form-label">Forma de pagamento <span class="text-muted">(opcional)</span></label>
+                        <select id="formaPagamento" class="form-select">
+                            <option value="">Não informar</option>
+                            <option value="Dinheiro">Dinheiro</option>
+                            <option value="Pix">Pix</option>
+                            <option value="Crédito">Crédito</option>
+                            <option value="Débito">Débito</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success" id="btnConfirmarPedido">
+                        <i class="bi bi-check-circle"></i> Confirmar reserva
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL BACKUP -->
+<div class="modal fade" id="backupModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Dados do sistema</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="border rounded p-3 mb-3 bg-light" id="blocoSyncOnline">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                        <div>
+                            <div class="fw-semibold">
+                                <i class="bi bi-cloud-arrow-up"></i> Sincronização online
+                            </div>
+                            <div class="small text-muted">
+                                Supabase • mesmos dados em vários dispositivos
+                            </div>
+                        </div>
+                        <span id="syncStatusBadge" class="badge text-bg-secondary">Local</span>
+                    </div>
+
+                    <div id="syncStatusTexto" class="small text-muted mb-3">
+                        Entre na sua conta para ativar a sincronização.
+                    </div>
+
+                    <div id="syncLoginArea">
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">E-mail</label>
+                            <input type="email" class="form-control" id="syncEmail" autocomplete="username" placeholder="seu@email.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small mb-1">Senha</label>
+                            <input type="password" class="form-control" id="syncSenha" autocomplete="current-password" placeholder="Sua senha">
+                        </div>
+                        <div class="d-grid gap-2 d-sm-flex">
+                            <button class="btn btn-primary flex-grow-1" id="btnSyncEntrar" type="button">
+                                <i class="bi bi-box-arrow-in-right"></i> Entrar
+                            </button>
+                            <button class="btn btn-outline-primary flex-grow-1" id="btnSyncCriarConta" type="button">
+                                <i class="bi bi-person-plus"></i> Criar conta
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="syncContaArea" class="d-none">
+                        <div class="alert alert-success py-2 px-3 small mb-3">
+                            <i class="bi bi-person-check"></i>
+                            Conectado como <strong id="syncUsuarioEmail"></strong>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary" id="btnSyncAgora" type="button">
+                                <i class="bi bi-arrow-repeat"></i> Sincronizar agora
+                            </button>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <button class="btn btn-outline-secondary w-100" id="btnSyncBaixar" type="button">
+                                        <i class="bi bi-cloud-download"></i> Carregar online
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button class="btn btn-outline-warning w-100" id="btnSyncEnviar" type="button">
+                                        <i class="bi bi-cloud-upload"></i> Enviar local
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-danger" id="btnSyncSair" type="button">
+                                <i class="bi bi-box-arrow-right"></i> Sair da conta
+                            </button>
+                        </div>
+                        <div class="small text-muted mt-2">
+                            “Carregar online” substitui os dados deste dispositivo. “Enviar local” substitui a versão online após confirmação.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    O navegador mantém uma <strong>cópia local</strong> como contingência. O JSON continua disponível para backup manual.
+                </div>
+
+                <div class="border rounded p-3 mb-3 bg-light">
+                    <div class="fw-semibold mb-1">
+                        <i class="bi bi-database"></i> Dados do sistema
+                    </div>
+                    <div class="small text-muted mb-3">
+                        Escolha se o backup principal deve incluir ou não os eventos arquivados.
+                    </div>
+
+                    <div class="dropdown d-grid mb-2">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-download"></i> Exportar dados do sistema
+                        </button>
+                        <ul class="dropdown-menu w-100">
+                            <li>
+                                <button class="dropdown-item" type="button" id="btnExportarSemArquivos">
+                                    <i class="bi bi-box-arrow-down"></i> Exportar sem eventos arquivados
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item" type="button" id="btnExportarComArquivos">
+                                    <i class="bi bi-archive"></i> Exportar com eventos arquivados
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <label class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-upload"></i> Importar dados do sistema
+                        <input type="file" id="inputImportar" accept=".json,application/json" hidden>
+                    </label>
+
+                    <div class="small text-muted mt-2">
+                        Ao importar um backup <strong>sem eventos</strong>, os eventos arquivados atuais serão preservados.
+                    </div>
+                </div>
+
+                <div class="border rounded p-3 mb-3">
+                    <div class="fw-semibold mb-1">
+                        <i class="bi bi-archive"></i> Eventos arquivados
+                    </div>
+                    <div class="small text-muted mb-3">
+                        Exporte ou importe somente o histórico de eventos, em um arquivo JSON separado.
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-success" id="btnExportarArquivos">
+                            <i class="bi bi-download"></i> Exportar eventos arquivados
+                        </button>
+
+                        <label class="btn btn-outline-success">
+                            <i class="bi bi-upload"></i> Importar eventos arquivados
+                            <input type="file" id="inputImportarArquivos" accept=".json,application/json" hidden>
+                        </label>
+                    </div>
+
+                    <div class="small text-muted mt-2">
+                        A importação adiciona eventos que ainda não existem e evita duplicar o mesmo evento pelo ID.
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="border rounded p-3 mb-3 bg-light">
+                    <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                        <div>
+                            <div class="fw-semibold">Contagem de pedidos</div>
+                            <div class="small text-muted">Próximo pedido: <strong id="proximoPedidoDados">PED-00001</strong></div>
+                        </div>
+                        <i class="bi bi-arrow-counterclockwise fs-4 text-secondary"></i>
+                    </div>
+
+                    <div class="small text-muted mb-3">
+                        Zerar a contagem fará o próximo pedido voltar para <strong>PED-00001</strong>.
+                        Os pedidos já registrados não serão apagados.
+                    </div>
+
+                    <button class="btn btn-outline-warning w-100" id="btnZerarContagemPedidos">
+                        <i class="bi bi-arrow-counterclockwise"></i> Zerar contagem de pedidos
+                    </button>
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>Atenção:</strong> apagar os dados não poderá ser desfeito.
+                </div>
+
+                <button class="btn btn-outline-danger w-100" id="btnApagarDados">
+                    <i class="bi bi-trash"></i> Apagar todos os dados
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ÁREA DE IMPRESSÃO -->
+<div id="printArea"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+"use strict";
+
+/*
+===========================================================
+PDV - BOLOS, BISCOITOS E BEBIDAS
+Persistência: localStorage + Supabase
+Sincronização online opcional com autenticação
+===========================================================
+*/
+
+const STORAGE_KEY = "pdv_bolos_localstorage_v1";
+const SUPABASE_URL = "https://rqbwhxpdfozsktbebwfv.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_um8okLMxm5ZuyW7dbf5BeA_Bi0r1isV";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+let sessaoSupabase = null;
+let versaoRemota = 0;
+let sincronizacaoPendente = false;
+let sincronizacaoEmAndamento = false;
+let conflitoSincronizacao = false;
+let timerSync = null;
+let timerVerificacaoRemota = null;
+let aplicandoDadosRemotos = false;
+
+const MODELO_DADOS = {
+    versao: 1,
+
+    itens: [],
+
+    caldas: [],
+
+    pedidos: [],
+
+    arquivos: [],
+
+    configuracao: {
+        proximoPedido: 1
+    }
+};
+
+let dados = carregarDados();
+let carrinho = [];
+let ajusteCarrinho = { tipo: "", valor: 0 };
+let filtroCategoria = "Todos";
+let buscaVenda = "";
+let produtoTemporario = null;
+let pedidoEmEdicaoId = null;
+let itemCarrinhoEmEdicaoId = null;
+let estoqueMassaRascunho = {};
+
+const produtoModal = new bootstrap.Modal(document.getElementById("produtoModal"));
+const estoqueMassaModal = new bootstrap.Modal(document.getElementById("estoqueMassaModal"));
+const caldaModal = new bootstrap.Modal(document.getElementById("caldaModal"));
+const tortaModal = new bootstrap.Modal(document.getElementById("tortaModal"));
+const clienteModal = new bootstrap.Modal(document.getElementById("clienteModal"));
+
+/* =========================================================
+   UTILITÁRIOS
+========================================================= */
+
+function novoId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+}
+
+function dinheiro(valor) {
+    return Number(valor || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
+}
+
+function escapeHtml(texto) {
+    return $("<div>").text(texto ?? "").html();
+}
+
+function salvarDados() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
+
+    if (!aplicandoDadosRemotos && sessaoSupabase?.user) {
+        sincronizacaoPendente = true;
+        atualizarEstadoSincronizacao("pendente", "Alterações aguardando sincronização...");
+        agendarSincronizacaoRemota();
+    }
+}
+
+function carregarDados() {
+    try {
+        const salvo = localStorage.getItem(STORAGE_KEY);
+
+        if (!salvo) {
+            return structuredClone(MODELO_DADOS);
+        }
+
+        const bruto = JSON.parse(salvo);
+
+        return normalizarDados(bruto);
+
+    } catch (erro) {
+        console.error("Erro ao carregar localStorage:", erro);
+        alert("Não foi possível carregar os dados salvos. Um banco vazio será utilizado.");
+        return structuredClone(MODELO_DADOS);
+    }
+}
+
+
+function atualizarEstadoSincronizacao(estado, texto = "") {
+    const mapa = {
+        local: ["secondary", "bi-cloud-slash", "Local"],
+        conectando: ["info", "bi-cloud-arrow-up", "Conectando"],
+        sincronizado: ["success", "bi-cloud-check", "Online"],
+        pendente: ["warning", "bi-cloud-arrow-up", "Pendente"],
+        conflito: ["danger", "bi-exclamation-triangle", "Conflito"],
+        erro: ["danger", "bi-cloud-slash", "Erro"]
+    };
+
+    const [cor, icone, rotulo] = mapa[estado] || mapa.local;
+
+    $("#syncStatusBadge")
+        .removeClass("text-bg-secondary text-bg-info text-bg-success text-bg-warning text-bg-danger")
+        .addClass("text-bg-" + cor)
+        .text(rotulo);
+
+    $("#statusOnlineTopo")
+        .removeClass("text-bg-secondary text-bg-info text-bg-success text-bg-warning text-bg-danger")
+        .addClass("text-bg-" + cor)
+        .html(`<i class="bi ${icone}"></i> ${rotulo}`);
+
+    if (texto) {
+        $("#syncStatusTexto").text(texto);
+    }
+}
+
+function renderEstadoContaSupabase() {
+    const conectado = Boolean(sessaoSupabase?.user);
+
+    $("#syncLoginArea").toggleClass("d-none", conectado);
+    $("#syncContaArea").toggleClass("d-none", !conectado);
+
+    if (conectado) {
+        $("#syncUsuarioEmail").text(sessaoSupabase.user.email || "Usuário autenticado");
+    }
+}
+
+function renderTudoAposSincronizacao() {
+    renderProdutosVenda();
+    renderCarrinho();
+    renderProdutosAdmin();
+    renderCaldas();
+    renderPedidos();
+    renderArquivados();
+    atualizarProximoPedidoDados();
+}
+
+function agendarSincronizacaoRemota() {
+    clearTimeout(timerSync);
+    timerSync = setTimeout(() => {
+        sincronizarEstadoRemoto();
+    }, 450);
+}
+
+async function buscarLinhaRemota() {
+    if (!sessaoSupabase?.user) {
+        return null;
+    }
+
+    const { data, error } = await supabaseClient
+        .from("doce_sonho_state")
+        .select("payload, version, updated_at")
+        .eq("owner_id", sessaoSupabase.user.id)
+        .maybeSingle();
+
+    if (error) {
+        throw error;
+    }
+
+    return data;
+}
+
+async function criarLinhaRemotaComDadosLocais() {
+    const { data, error } = await supabaseClient
+        .from("doce_sonho_state")
+        .insert({
+            owner_id: sessaoSupabase.user.id,
+            payload: structuredClone(dados),
+            version: 1,
+            updated_at: new Date().toISOString()
+        })
+        .select("version, updated_at")
+        .single();
+
+    if (error) {
+        throw error;
+    }
+
+    versaoRemota = Number(data.version || 1);
+    sincronizacaoPendente = false;
+    conflitoSincronizacao = false;
+    atualizarEstadoSincronizacao("sincronizado", "Dados locais enviados para o Supabase.");
+}
+
+async function aplicarLinhaRemota(linha, mensagem = "Dados online carregados.") {
+    if (!linha?.payload) {
+        return;
+    }
+
+    aplicandoDadosRemotos = true;
+    try {
+        dados = normalizarDados(linha.payload);
+        versaoRemota = Number(linha.version || 1);
+        sincronizacaoPendente = false;
+        conflitoSincronizacao = false;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
+        renderTudoAposSincronizacao();
+        atualizarEstadoSincronizacao("sincronizado", mensagem);
+    } finally {
+        aplicandoDadosRemotos = false;
+    }
+}
+
+async function conectarEstadoRemoto() {
+    if (!sessaoSupabase?.user) {
+        return;
+    }
+
+    atualizarEstadoSincronizacao("conectando", "Verificando os dados online...");
+
+    try {
+        const linha = await buscarLinhaRemota();
+
+        if (!linha) {
+            await criarLinhaRemotaComDadosLocais();
+        } else {
+            await aplicarLinhaRemota(linha, "Sincronizado com os dados online.");
+        }
+
+        iniciarVerificacaoRemota();
+    } catch (erro) {
+        console.error("Erro ao conectar ao Supabase:", erro);
+        atualizarEstadoSincronizacao(
+            "erro",
+            "Não foi possível acessar a tabela online. Verifique se o SQL de configuração foi executado no Supabase."
+        );
+    }
+}
+
+async function sincronizarEstadoRemoto() {
+    if (!sessaoSupabase?.user || sincronizacaoEmAndamento || conflitoSincronizacao) {
+        return;
+    }
+
+    if (!sincronizacaoPendente) {
+        atualizarEstadoSincronizacao("sincronizado", "Dados já estão sincronizados.");
+        return;
+    }
+
+    sincronizacaoEmAndamento = true;
+    const snapshot = structuredClone(dados);
+    const versaoEsperada = Number(versaoRemota || 0);
+
+    try {
+        if (versaoEsperada <= 0) {
+            const linha = await buscarLinhaRemota();
+            if (!linha) {
+                await criarLinhaRemotaComDadosLocais();
+                return;
+            }
+            versaoRemota = Number(linha.version || 1);
+        }
+
+        const proximaVersao = Number(versaoRemota) + 1;
+        const { data, error } = await supabaseClient
+            .from("doce_sonho_state")
+            .update({
+                payload: snapshot,
+                version: proximaVersao,
+                updated_at: new Date().toISOString()
+            })
+            .eq("owner_id", sessaoSupabase.user.id)
+            .eq("version", versaoRemota)
+            .select("version, updated_at");
+
+        if (error) {
+            throw error;
+        }
+
+        if (!Array.isArray(data) || data.length === 0) {
+            conflitoSincronizacao = true;
+            sincronizacaoPendente = true;
+            atualizarEstadoSincronizacao(
+                "conflito",
+                "Outro dispositivo alterou os dados ao mesmo tempo. Use “Carregar online” ou “Enviar local” para decidir qual versão manter."
+            );
+            return;
+        }
+
+        versaoRemota = Number(data[0].version || proximaVersao);
+        sincronizacaoPendente = false;
+        conflitoSincronizacao = false;
+        atualizarEstadoSincronizacao("sincronizado", "Dados salvos online.");
+    } catch (erro) {
+        console.error("Erro ao sincronizar:", erro);
+        sincronizacaoPendente = true;
+        atualizarEstadoSincronizacao("erro", "Falha ao sincronizar. A cópia local foi preservada.");
+    } finally {
+        sincronizacaoEmAndamento = false;
+    }
+}
+
+async function carregarDadosOnlineComConfirmacao() {
+    if (!sessaoSupabase?.user) {
+        alert("Entre na conta do Supabase primeiro.");
+        return;
+    }
+
+    if (!confirm("Carregar os dados online e substituir a cópia deste dispositivo?")) {
+        return;
+    }
+
+    try {
+        const linha = await buscarLinhaRemota();
+        if (!linha) {
+            alert("Ainda não existem dados online para esta conta.");
+            return;
+        }
+        await aplicarLinhaRemota(linha, "Dados online carregados neste dispositivo.");
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível carregar os dados online.");
+    }
+}
+
+async function enviarDadosLocaisForcado() {
+    if (!sessaoSupabase?.user) {
+        alert("Entre na conta do Supabase primeiro.");
+        return;
+    }
+
+    if (!confirm(
+        "Enviar os dados DESTE dispositivo para o Supabase e substituir a versão online?\n\n" +
+        "Use esta opção somente quando tiver certeza de que a cópia local é a correta."
+    )) {
+        return;
+    }
+
+    sincronizacaoEmAndamento = true;
+    try {
+        let linha = await buscarLinhaRemota();
+
+        if (!linha) {
+            await criarLinhaRemotaComDadosLocais();
+            return;
+        }
+
+        const versaoAtual = Number(linha.version || 1);
+        const { data, error } = await supabaseClient
+            .from("doce_sonho_state")
+            .update({
+                payload: structuredClone(dados),
+                version: versaoAtual + 1,
+                updated_at: new Date().toISOString()
+            })
+            .eq("owner_id", sessaoSupabase.user.id)
+            .eq("version", versaoAtual)
+            .select("version, updated_at");
+
+        if (error) {
+            throw error;
+        }
+
+        if (!data?.length) {
+            conflitoSincronizacao = true;
+            atualizarEstadoSincronizacao("conflito", "Os dados mudaram novamente em outro dispositivo. Tente outra vez.");
+            return;
+        }
+
+        versaoRemota = Number(data[0].version);
+        sincronizacaoPendente = false;
+        conflitoSincronizacao = false;
+        atualizarEstadoSincronizacao("sincronizado", "Cópia local enviada e definida como versão online.");
+    } catch (erro) {
+        console.error(erro);
+        atualizarEstadoSincronizacao("erro", "Não foi possível enviar a cópia local.");
+    } finally {
+        sincronizacaoEmAndamento = false;
+    }
+}
+
+function iniciarVerificacaoRemota() {
+    clearInterval(timerVerificacaoRemota);
+    timerVerificacaoRemota = setInterval(verificarAtualizacaoRemota, 8000);
+}
+
+async function verificarAtualizacaoRemota() {
+    if (!sessaoSupabase?.user || sincronizacaoEmAndamento || sincronizacaoPendente || conflitoSincronizacao) {
+        return;
+    }
+
+    try {
+        const linha = await buscarLinhaRemota();
+        if (linha && Number(linha.version || 0) > Number(versaoRemota || 0)) {
+            await aplicarLinhaRemota(linha, "Atualização recebida de outro dispositivo.");
+        }
+    } catch (erro) {
+        console.warn("Verificação online falhou:", erro);
+    }
+}
+
+async function inicializarSupabaseOnline() {
+    try {
+        const { data, error } = await supabaseClient.auth.getSession();
+        if (error) {
+            throw error;
+        }
+
+        sessaoSupabase = data.session;
+        renderEstadoContaSupabase();
+
+        if (sessaoSupabase?.user) {
+            await conectarEstadoRemoto();
+        } else {
+            atualizarEstadoSincronizacao("local", "Modo local. Entre na conta para sincronizar entre dispositivos.");
+        }
+
+        supabaseClient.auth.onAuthStateChange((evento, sessao) => {
+            sessaoSupabase = sessao;
+            renderEstadoContaSupabase();
+
+            if (sessao?.user) {
+                setTimeout(() => conectarEstadoRemoto(), 0);
+            } else {
+                clearInterval(timerVerificacaoRemota);
+                versaoRemota = 0;
+                sincronizacaoPendente = false;
+                conflitoSincronizacao = false;
+                atualizarEstadoSincronizacao("local", "Modo local. Entre na conta para sincronizar entre dispositivos.");
+            }
+        });
+    } catch (erro) {
+        console.error("Erro ao iniciar Supabase:", erro);
+        atualizarEstadoSincronizacao("erro", "Não foi possível iniciar a conexão com o Supabase.");
+    }
+}
+
+$(document).on("click", "#btnSyncEntrar", async function() {
+    const email = $("#syncEmail").val().trim();
+    const senha = $("#syncSenha").val();
+
+    if (!email || !senha) {
+        alert("Informe e-mail e senha.");
+        return;
+    }
+
+    $(this).prop("disabled", true);
+    try {
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password: senha });
+        if (error) {
+            throw error;
+        }
+        $("#syncSenha").val("");
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível entrar: " + (erro.message || "verifique e-mail e senha."));
+    } finally {
+        $(this).prop("disabled", false);
+    }
+});
+
+$(document).on("click", "#btnSyncCriarConta", async function() {
+    const email = $("#syncEmail").val().trim();
+    const senha = $("#syncSenha").val();
+
+    if (!email || !senha) {
+        alert("Informe um e-mail e uma senha para criar a conta.");
+        return;
+    }
+
+    if (senha.length < 6) {
+        alert("Use uma senha com pelo menos 6 caracteres.");
+        return;
+    }
+
+    $(this).prop("disabled", true);
+    try {
+        const { data, error } = await supabaseClient.auth.signUp({ email, password: senha });
+        if (error) {
+            throw error;
+        }
+
+        if (data.session) {
+            alert("Conta criada e conectada com sucesso.");
+        } else {
+            alert("Conta criada. Se a confirmação de e-mail estiver ativada no Supabase, confirme o e-mail e depois clique em Entrar.");
+        }
+        $("#syncSenha").val("");
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível criar a conta: " + (erro.message || "erro desconhecido."));
+    } finally {
+        $(this).prop("disabled", false);
+    }
+});
+
+$(document).on("click", "#btnSyncAgora", function() {
+    sincronizacaoPendente = true;
+    conflitoSincronizacao = false;
+    sincronizarEstadoRemoto();
+});
+
+$(document).on("click", "#btnSyncBaixar", carregarDadosOnlineComConfirmacao);
+$(document).on("click", "#btnSyncEnviar", enviarDadosLocaisForcado);
+
+$(document).on("click", "#btnSyncSair", async function() {
+    if (!confirm("Sair da conta online neste dispositivo? Os dados locais permanecerão salvos.")) {
+        return;
+    }
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) {
+        alert("Não foi possível sair da conta.");
+    }
+});
+
+function normalizarDados(obj) {
+    const resultado = structuredClone(MODELO_DADOS);
+
+    if (!obj || typeof obj !== "object") {
+        return resultado;
+    }
+
+    resultado.versao = Number(obj.versao || 1);
+
+    resultado.itens = Array.isArray(obj.itens)
+        ? obj.itens.map(normalizarProduto)
+        : [];
+
+    resultado.caldas = Array.isArray(obj.caldas)
+        ? obj.caldas.map(normalizarCalda)
+        : [];
+
+    resultado.pedidos = Array.isArray(obj.pedidos)
+        ? obj.pedidos.map(normalizarPedido)
+        : [];
+
+    resultado.arquivos = Array.isArray(obj.arquivos)
+        ? obj.arquivos.map(normalizarArquivoPedidos)
+        : [];
+
+    resultado.configuracao = {
+        proximoPedido: Number(obj.configuracao?.proximoPedido || 1)
+    };
+
+    return resultado;
+}
+
+function normalizarProduto(p) {
+    return {
+        id: p.id || novoId(),
+        nome: String(p.nome || ""),
+        descricao: String(p.descricao || ""),
+        imagem: String(p.imagem || ""),
+        valor: Number(p.valor || 0),
+        categoria: p.categoria || "Outros",
+        unidade: p.unidade || "Un",
+        // Campo mantido como "estoqueFatias" por compatibilidade com dados antigos,
+        // mas agora representa a quantidade em estoque de qualquer categoria.
+        estoqueFatias: Math.max(0, Number(p.estoqueFatias ?? p.estoque?.quantidade ?? 0)),
+        caldaIds: Array.isArray(p.caldaIds) ? p.caldaIds : []
+    };
+}
+
+function normalizarCalda(c) {
+    return {
+        id: c.id || novoId(),
+        nome: String(c.nome || ""),
+        valor: Math.max(0, Number(c.valor || 0))
+    };
+}
+
+function normalizarPedido(p) {
+    const itens = Array.isArray(p.itens) ? p.itens : [];
+    const subtotalCalculado = itens.reduce(
+        (total, item) => total + Number(item.subtotal || 0),
+        0
+    );
+    const subtotal = Number(p.subtotal ?? subtotalCalculado ?? p.total ?? 0);
+    const tipoAjuste = ["desconto", "acrescimo"].includes(p.ajuste?.tipo)
+        ? p.ajuste.tipo
+        : "";
+    const valorAjuste = Math.max(0, Number(p.ajuste?.valor || 0));
+
+    return {
+        id: p.id || novoId(),
+        numero: Number(p.numero || 0),
+        codigo: p.codigo || "",
+        cliente: {
+            nome: String(p.cliente?.nome || ""),
+            telefone: String(p.cliente?.telefone || "")
+        },
+        itens: itens,
+        subtotal: subtotal,
+        ajuste: {
+            tipo: tipoAjuste,
+            valor: valorAjuste
+        },
+        total: Number(p.total ?? subtotal),
+        formaPagamento: ["Dinheiro", "Pix", "Crédito", "Débito", "Outros"].includes(p.formaPagamento)
+            ? p.formaPagamento
+            : "Não informado",
+        status: p.status || "Reservado",
+        criadoEm: p.criadoEm || new Date().toISOString(),
+        concluidoEm: p.concluidoEm || null
+    };
+}
+
+function normalizarArquivoPedidos(a) {
+    return {
+        id: a.id || novoId(),
+        nome: String(a.nome || "Evento arquivado"),
+        arquivadoEm: a.arquivadoEm || new Date().toISOString(),
+        pedidos: Array.isArray(a.pedidos)
+            ? a.pedidos.map(normalizarPedido)
+            : []
+    };
+}
+
+function obterPedidoPorId(id) {
+    const atual = dados.pedidos.find(p => p.id === id);
+    if (atual) return atual;
+
+    for (const arquivo of (dados.arquivos || [])) {
+        const encontrado = (arquivo.pedidos || []).find(p => p.id === id);
+        if (encontrado) return encontrado;
+    }
+
+    return null;
+}
+
+function gerarCodigoPedido() {
+    const numero = Number(dados.configuracao.proximoPedido || 1);
+
+    dados.configuracao.proximoPedido = numero + 1;
+
+    return "PED-" + String(numero).padStart(5, "0");
+}
+
+function obterProduto(id) {
+    return dados.itens.find(p => p.id === id);
+}
+
+function obterCalda(id) {
+    return dados.caldas.find(c => c.id === id);
+}
+
+function quantidadeProdutoNoCarrinho(produtoId) {
+    return carrinho
+        .filter(item => item.produtoId === produtoId)
+        .reduce((total, item) => total + Number(item.quantidade || 0), 0);
+}
+
+// Mantém compatibilidade com as rotinas específicas de torta.
+function quantidadeTortaNoCarrinho(produtoId) {
+    return quantidadeProdutoNoCarrinho(produtoId);
+}
+
+function pedidoEmEdicao() {
+    if (!pedidoEmEdicaoId) return null;
+
+    const pedido = dados.pedidos.find(p => p.id === pedidoEmEdicaoId);
+    return pedido && pedido.status !== "Concluído" ? pedido : null;
+}
+
+function quantidadeOriginalPedidoEmEdicao(produtoId) {
+    const pedido = pedidoEmEdicao();
+    if (!pedido) return 0;
+
+    return (pedido.itens || [])
+        .filter(item => item.produtoId === produtoId)
+        .reduce((total, item) => total + Number(item.quantidade || 0), 0);
+}
+
+function estoqueBaseDisponivelProduto(produto) {
+    return Math.max(
+        0,
+        Number(produto?.estoqueFatias || 0) + quantidadeOriginalPedidoEmEdicao(produto?.id)
+    );
+}
+
+function estoqueDisponivelProduto(produto) {
+    return Math.max(
+        0,
+        estoqueBaseDisponivelProduto(produto) - quantidadeProdutoNoCarrinho(produto?.id)
+    );
+}
+
+function atualizarEstadoEdicaoPedido() {
+    const pedido = pedidoEmEdicao();
+
+    if (pedido) {
+        $("#avisoEdicaoPedido").removeClass("d-none");
+        $("#codigoPedidoEmEdicao").text(
+            `${pedido.codigo || "Pedido"} • ${pedido.cliente?.nome || "Cliente não informado"}`
+        );
+        $("#btnFinalizar").html('<i class="bi bi-save"></i> Salvar alterações do pedido');
+    } else {
+        $("#avisoEdicaoPedido").addClass("d-none");
+        $("#codigoPedidoEmEdicao").text("");
+        $("#btnFinalizar").html('<i class="bi bi-check-circle"></i> Finalizar pedido');
+    }
+}
+
+function encerrarModoEdicaoPedido(limparCarrinho = true) {
+    pedidoEmEdicaoId = null;
+    itemCarrinhoEmEdicaoId = null;
+
+    if (limparCarrinho) {
+        carrinho = [];
+        ajusteCarrinho = { tipo: "", valor: 0 };
+    }
+
+    atualizarEstadoEdicaoPedido();
+}
+
+function nomeUnidadeEstoque(produto, quantidade) {
+    const unidade = String(produto?.unidade || "un").trim();
+    if (quantidade === 1) {
+        if (unidade.toLowerCase() === "fatias") return "fatia";
+        if (unidade.toLowerCase() === "un") return "un";
+        if (unidade.toLowerCase() === "pote") return "pote";
+    }
+    return unidade.toLowerCase();
+}
+
+function subtotalCarrinho() {
+    return carrinho.reduce((total, item) => {
+        return total + Number(item.subtotal || 0);
+    }, 0);
+}
+
+function valorAjusteCarrinho() {
+    const subtotal = subtotalCarrinho();
+    const valor = Math.max(0, Number(ajusteCarrinho.valor || 0));
+
+    if (ajusteCarrinho.tipo === "desconto") {
+        return Math.min(valor, subtotal);
+    }
+
+    if (ajusteCarrinho.tipo === "acrescimo") {
+        return valor;
+    }
+
+    return 0;
+}
+
+function totalCarrinho() {
+    const subtotal = subtotalCarrinho();
+    const ajuste = valorAjusteCarrinho();
+
+    if (ajusteCarrinho.tipo === "desconto") {
+        return Math.max(0, subtotal - ajuste);
+    }
+
+    if (ajusteCarrinho.tipo === "acrescimo") {
+        return subtotal + ajuste;
+    }
+
+    return subtotal;
+}
+
+let feedbackCarrinhoTimer = null;
+
+function mostrarFeedbackCarrinho(nomeProduto, quantidade = 1) {
+    const qtd = Math.max(1, Number(quantidade || 1));
+    const texto = qtd > 1
+        ? `${qtd}× ${nomeProduto} adicionados ao carrinho`
+        : `${nomeProduto} adicionado ao carrinho`;
+
+    $("#feedbackCarrinhoTexto").text(texto);
+
+    const feedback = $("#feedbackCarrinho");
+    feedback.addClass("show");
+
+    // Reinicia as animações caso vários itens sejam adicionados em sequência.
+    const carrinhoCard = document.getElementById("carrinhoCard");
+    const total = document.getElementById("totalCarrinho");
+
+    if (carrinhoCard) {
+        carrinhoCard.classList.remove("cart-added-pulse");
+        void carrinhoCard.offsetWidth;
+        carrinhoCard.classList.add("cart-added-pulse");
+    }
+
+    if (total) {
+        total.classList.remove("total-added-pulse");
+        void total.offsetWidth;
+        total.classList.add("total-added-pulse");
+    }
+
+    clearTimeout(feedbackCarrinhoTimer);
+    feedbackCarrinhoTimer = setTimeout(() => {
+        feedback.removeClass("show");
+    }, 1400);
+}
+
+function imagemProduto(produto) {
+    if (produto.imagem) {
+        return `
+            <img
+                src="${escapeHtml(produto.imagem)}"
+                class="product-img"
+                alt="${escapeHtml(produto.nome)}"
+                onerror="this.outerHTML='<div class=&quot;product-placeholder&quot;>🍰</div>'"
+            >
+        `;
+    }
+
+    const icones = {
+        Tortas: "🍰",
+        Biscoitos: "🍪",
+        Bebidas: "🥤",
+        Outros: "📦"
+    };
+
+    return `<div class="product-placeholder">${icones[produto.categoria] || "📦"}</div>`;
+}
+
+/* =========================================================
+   NAVEGAÇÃO
+========================================================= */
+
+function abrirPagina(nome) {
+    $(".page").removeClass("active");
+    $("#page-" + nome).addClass("active");
+
+    $(".nav-page-btn").removeClass("text-primary fw-bold");
+    $('.nav-page-btn[data-page="' + nome + '"]').addClass("text-primary fw-bold");
+
+    if (nome === "venda") {
+        renderProdutosVenda();
+        renderCarrinho();
+    }
+
+    if (nome === "produtos") {
+        renderProdutosAdmin();
+    }
+
+    if (nome === "caldas") {
+        renderCaldas();
+    }
+
+    if (nome === "pedidos") {
+        renderPedidos();
+    }
+
+    if (nome === "arquivados") {
+        renderArquivados();
+    }
+}
+
+$(document).on("click", ".nav-page-btn", function() {
+    abrirPagina($(this).data("page"));
+});
+
+$(document).on("click", ".categoria-btn", function() {
+    $(".categoria-btn").removeClass("active");
+    $(this).addClass("active");
+
+    filtroCategoria = $(this).data("categoria");
+
+    renderProdutosVenda();
+});
+
+function normalizarBuscaVenda(texto) {
+    return String(texto || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+}
+
+$(document).on("input", "#buscaVenda", function() {
+    buscaVenda = $(this).val();
+    renderProdutosVenda();
+});
+
+$(document).on("click", "#btnLimparBuscaVenda", function() {
+    buscaVenda = "";
+    $("#buscaVenda").val("").trigger("focus");
+    renderProdutosVenda();
+});
+
+/* =========================================================
+   VENDA
+========================================================= */
+
+function renderProdutosVenda() {
+    let produtos = dados.itens;
+
+    if (filtroCategoria === "Todos") {
+        // Na aba Todos, exibe somente produtos com estoque disponível.
+        produtos = produtos.filter(p => estoqueDisponivelProduto(p) > 0);
+    } else {
+        // Nas categorias específicas, mantém itens sem estoque visíveis para conferência/reposição.
+        produtos = produtos.filter(p => p.categoria === filtroCategoria);
+    }
+
+    const termoBusca = normalizarBuscaVenda(buscaVenda);
+
+    if (termoBusca) {
+        produtos = produtos.filter(p => {
+            const textoProduto = normalizarBuscaVenda([
+                p.nome,
+                p.descricao,
+                p.categoria,
+                p.unidade
+            ].join(" "));
+
+            return textoProduto.includes(termoBusca);
+        });
+    }
+
+    $("#contadorProdutos").text(
+        produtos.length + (produtos.length === 1 ? " produto" : " produtos")
+    );
+
+    if (!produtos.length) {
+        const mensagem = termoBusca
+            ? `Nenhum produto encontrado para “${escapeHtml(buscaVenda)}”.`
+            : "Nenhum produto cadastrado nesta categoria.";
+
+        $("#listaProdutos").html(`
+            <div class="col-12">
+                <div class="alert alert-light border text-center">
+                    <i class="bi bi-search me-1"></i> ${mensagem}
+                </div>
+            </div>
+        `);
+        return;
+    }
+
+    $("#listaProdutos").html(
+        produtos.map(produto => {
+            const disponivel = estoqueDisponivelProduto(produto);
+            const unidadeEstoque = nomeUnidadeEstoque(produto, disponivel);
+            let estoqueHtml = "";
+
+            if (disponivel <= 0) {
+                estoqueHtml = `<span class="badge text-bg-danger">Sem estoque</span>`;
+            } else if (disponivel <= 3) {
+                estoqueHtml = `<span class="badge text-bg-warning">Restam ${disponivel} ${escapeHtml(unidadeEstoque)}</span>`;
+            } else {
+                estoqueHtml = `<span class="badge text-bg-success">${disponivel} ${escapeHtml(unidadeEstoque)}</span>`;
+            }
+
+            return `
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card product-card shadow-sm"
+                         data-produto-id="${escapeHtml(produto.id)}">
+
+                        ${imagemProduto(produto)}
+
+                        <div class="card-body">
+                            <div class="small text-muted">${escapeHtml(produto.categoria)}</div>
+
+                            <h2 class="h6 mt-1 mb-1">
+                                ${escapeHtml(produto.nome)}
+                            </h2>
+
+                            <div class="small text-muted mb-2">
+                                ${escapeHtml(produto.descricao)}
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center gap-2">
+                                <strong>${dinheiro(produto.valor)}</strong>
+                                ${estoqueHtml}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join("")
+    );
+}
+
+$(document).on("click", ".product-card", function() {
+    const produto = obterProduto($(this).data("produto-id"));
+
+    if (!produto) {
+        return;
+    }
+
+    if (produto.categoria === "Tortas") {
+        abrirModalTorta(produto);
+    } else {
+        adicionarProdutoSimples(produto);
+    }
+});
+
+function adicionarProdutoSimples(produto) {
+    const disponivel = estoqueDisponivelProduto(produto);
+
+    if (disponivel <= 0) {
+        alert(`Não há estoque disponível para "${produto.nome}".`);
+        return;
+    }
+
+    carrinho.push({
+        id: novoId(),
+        produtoId: produto.id,
+        nome: produto.nome,
+        categoria: produto.categoria,
+        unidade: produto.unidade,
+        quantidade: 1,
+        valorUnitario: produto.valor,
+        calda: {
+            id: null,
+            nome: "Sem Calda",
+            valorAdicional: 0
+        },
+        precoFinalUnitario: produto.valor,
+        subtotal: produto.valor
+    });
+
+    renderCarrinho();
+    renderProdutosVenda();
+    mostrarFeedbackCarrinho(produto.nome, 1);
+}
+
+function abrirModalTorta(produto) {
+    itemCarrinhoEmEdicaoId = null;
+    const disponivel = estoqueDisponivelProduto(produto);
+
+    if (disponivel <= 0) {
+        alert("Não há fatias disponíveis dessa torta.");
+        return;
+    }
+
+    produtoTemporario = produto;
+
+    $("#tortaProdutoId").val(produto.id);
+    $("#tortaTitulo").text(produto.nome);
+    $("#tortaEstoqueTexto").text("Disponível: " + disponivel + " fatias");
+    $("#tortaQuantidade").val(1);
+    $("#tortaQuantidade").attr("max", disponivel);
+    $("#tortaPrecoBase").text(dinheiro(produto.valor));
+
+    const caldasPermitidas = dados.caldas.filter(c =>
+        produto.caldaIds.includes(c.id)
+    );
+
+    $("#tortaCalda").html(
+        `<option value="">Sem Calda — R$ 0,00</option>` +
+        caldasPermitidas.map(c => `
+            <option value="${escapeHtml(c.id)}">
+                ${escapeHtml(c.nome)} — +${dinheiro(c.valor)}
+            </option>
+        `).join("")
+    );
+
+    atualizarTotalTorta();
+
+    tortaModal.show();
+}
+
+function atualizarTotalTorta() {
+    if (!produtoTemporario) {
+        return;
+    }
+
+    const quantidade = Math.max(
+        1,
+        Number($("#tortaQuantidade").val() || 1)
+    );
+
+    const calda = $("#tortaCalda").val()
+        ? obterCalda($("#tortaCalda").val())
+        : null;
+
+    const adicional = calda ? calda.valor : 0;
+    const precoUnitario = produtoTemporario.valor + adicional;
+    const total = precoUnitario * quantidade;
+
+    $("#tortaPrecoCalda").text(dinheiro(adicional));
+    $("#tortaTotalLinha").text(dinheiro(total));
+}
+
+$("#tortaQuantidade, #tortaCalda").on("input change", atualizarTotalTorta);
+
+$("#formTortaVenda").on("submit", function(e) {
+    e.preventDefault();
+
+    if (!produtoTemporario) {
+        return;
+    }
+
+    const quantidade = Number($("#tortaQuantidade").val());
+    const itemEditado = itemCarrinhoEmEdicaoId
+        ? carrinho.find(item => item.id === itemCarrinhoEmEdicaoId)
+        : null;
+
+    const outrasQuantidades = carrinho
+        .filter(item =>
+            item.produtoId === produtoTemporario.id &&
+            (!itemEditado || item.id !== itemEditado.id)
+        )
+        .reduce((total, item) => total + Number(item.quantidade || 0), 0);
+
+    const disponivelParaLinha = Math.max(
+        0,
+        estoqueBaseDisponivelProduto(produtoTemporario) - outrasQuantidades
+    );
+
+    if (!Number.isInteger(quantidade) || quantidade < 1) {
+        alert("Informe uma quantidade válida.");
+        return;
+    }
+
+    if (quantidade > disponivelParaLinha) {
+        alert("Quantidade superior ao estoque disponível.");
+        return;
+    }
+
+    const caldaId = $("#tortaCalda").val();
+    const calda = caldaId ? obterCalda(caldaId) : null;
+
+    const adicional = calda ? calda.valor : 0;
+    const precoFinal = produtoTemporario.valor + adicional;
+
+    const dadosLinha = {
+        produtoId: produtoTemporario.id,
+        nome: produtoTemporario.nome,
+        categoria: produtoTemporario.categoria,
+        unidade: "Fatias",
+        quantidade: quantidade,
+        valorUnitario: produtoTemporario.valor,
+        calda: {
+            id: calda ? calda.id : null,
+            nome: calda ? calda.nome : "Sem Calda",
+            valorAdicional: adicional
+        },
+        precoFinalUnitario: precoFinal,
+        subtotal: precoFinal * quantidade
+    };
+
+    if (itemEditado) {
+        Object.assign(itemEditado, dadosLinha);
+    } else {
+        carrinho.push({
+            id: novoId(),
+            ...dadosLinha
+        });
+    }
+
+    const nomeProdutoAlterado = produtoTemporario.nome;
+    const estavaEditandoLinha = Boolean(itemEditado);
+
+    itemCarrinhoEmEdicaoId = null;
+    produtoTemporario = null;
+    tortaModal.hide();
+
+    renderCarrinho();
+    renderProdutosVenda();
+
+    if (estavaEditandoLinha) {
+        $("#feedbackCarrinhoTexto").text(`${nomeProdutoAlterado} atualizado no carrinho`);
+        $("#feedbackCarrinho").addClass("show");
+        clearTimeout(feedbackCarrinhoTimer);
+        feedbackCarrinhoTimer = setTimeout(() => $("#feedbackCarrinho").removeClass("show"), 1400);
+    } else {
+        mostrarFeedbackCarrinho(nomeProdutoAlterado, quantidade);
+    }
+});
+
+function abrirEditarTortaCarrinho(item) {
+    const produto = obterProduto(item.produtoId);
+
+    if (!produto || item.categoria !== "Tortas") {
+        return;
+    }
+
+    produtoTemporario = produto;
+    itemCarrinhoEmEdicaoId = item.id;
+
+    const outrasQuantidades = carrinho
+        .filter(i => i.produtoId === produto.id && i.id !== item.id)
+        .reduce((total, i) => total + Number(i.quantidade || 0), 0);
+
+    const maximo = Math.max(
+        1,
+        estoqueBaseDisponivelProduto(produto) - outrasQuantidades
+    );
+
+    $("#tortaProdutoId").val(produto.id);
+    $("#tortaTitulo").text(`Editar ${produto.nome}`);
+    $("#tortaEstoqueTexto").text("Máximo disponível: " + maximo + " fatias");
+    $("#tortaQuantidade").val(item.quantidade).attr("max", maximo);
+    $("#tortaPrecoBase").text(dinheiro(produto.valor));
+
+    const caldasPermitidas = dados.caldas.filter(c => produto.caldaIds.includes(c.id));
+
+    $("#tortaCalda").html(
+        `<option value="">Sem Calda — R$ 0,00</option>` +
+        caldasPermitidas.map(c => `
+            <option value="${escapeHtml(c.id)}">
+                ${escapeHtml(c.nome)} — +${dinheiro(c.valor)}
+            </option>
+        `).join("")
+    );
+
+    $("#tortaCalda").val(item.calda?.id || "");
+    atualizarTotalTorta();
+    tortaModal.show();
+}
+
+$(document).on("click", ".btn-cart-edit-torta", function() {
+    const item = carrinho.find(i => i.id === $(this).data("id"));
+    if (item) abrirEditarTortaCarrinho(item);
+});
+
+
+function renderCarrinho() {
+    atualizarEstadoEdicaoPedido();
+
+    if (!carrinho.length) {
+        ajusteCarrinho = { tipo: "", valor: 0 };
+    }
+
+    const subtotal = subtotalCarrinho();
+    const ajuste = valorAjusteCarrinho();
+    const total = totalCarrinho();
+
+    $("#subtotalCarrinho").text(dinheiro(subtotal));
+    $("#totalCarrinho").text(dinheiro(total));
+    $("#ajusteTipo").val(ajusteCarrinho.tipo);
+    $("#ajusteValor")
+        .val(Number(ajusteCarrinho.valor || 0))
+        .prop("disabled", !ajusteCarrinho.tipo);
+
+    if (ajusteCarrinho.tipo && ajuste > 0) {
+        const desconto = ajusteCarrinho.tipo === "desconto";
+        $("#linhaAjusteCarrinho").removeClass("d-none");
+        $("#ajusteCarrinhoRotulo").text(desconto ? "Desconto" : "Acréscimo");
+        $("#ajusteCarrinhoValor")
+            .text((desconto ? "- " : "+ ") + dinheiro(ajuste))
+            .toggleClass("text-danger", desconto)
+            .toggleClass("text-success", !desconto);
+    } else {
+        $("#linhaAjusteCarrinho").addClass("d-none");
+        $("#ajusteCarrinhoValor").removeClass("text-danger text-success");
+    }
+
+    if (!carrinho.length) {
+        $("#carrinhoVazio").show();
+        $("#listaCarrinho").html("");
+        return;
+    }
+
+    $("#carrinhoVazio").hide();
+
+    $("#listaCarrinho").html(
+        carrinho.map(item => `
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between gap-2">
+
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">
+                            ${escapeHtml(item.nome)}
+                        </div>
+
+                        ${item.categoria === "Tortas" ? `
+                            <div class="small text-muted">
+                                Calda: ${escapeHtml(item.calda.nome)}
+                                ${item.calda.valorAdicional > 0
+                                    ? ` (+${dinheiro(item.calda.valorAdicional)})`
+                                    : ""
+                                }
+                            </div>
+                        ` : ""}
+
+                        <div class="small">
+                            ${dinheiro(item.precoFinalUnitario)} × ${item.quantidade}
+                        </div>
+
+                        <strong>${dinheiro(item.subtotal)}</strong>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-1">
+                        <button class="btn btn-outline-secondary btn-sm btn-cart-minus"
+                                data-id="${escapeHtml(item.id)}">
+                            <i class="bi bi-dash"></i>
+                        </button>
+
+                        <span class="px-1">${item.quantidade}</span>
+
+                        <button class="btn btn-outline-secondary btn-sm btn-cart-plus"
+                                data-id="${escapeHtml(item.id)}">
+                            <i class="bi bi-plus"></i>
+                        </button>
+
+                        ${item.categoria === "Tortas" ? `
+                            <button class="btn btn-outline-primary btn-sm btn-cart-edit-torta"
+                                    data-id="${escapeHtml(item.id)}" title="Editar quantidade e calda">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        ` : ""}
+
+                        <button class="btn btn-outline-danger btn-sm btn-cart-remove"
+                                data-id="${escapeHtml(item.id)}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        `).join("")
+    );
+}
+
+function atualizarItemCarrinho(item, novaQuantidade) {
+    const produto = obterProduto(item.produtoId);
+
+    if (!produto) {
+        return;
+    }
+
+    const outrasQuantidades = carrinho
+        .filter(i => i.produtoId === item.produtoId && i.id !== item.id)
+        .reduce((sum, i) => sum + Number(i.quantidade), 0);
+
+    if (outrasQuantidades + novaQuantidade > estoqueBaseDisponivelProduto(produto)) {
+        alert("Quantidade superior ao estoque disponível.");
+        return;
+    }
+
+    if (novaQuantidade <= 0) {
+        carrinho = carrinho.filter(i => i.id !== item.id);
+        renderCarrinho();
+        renderProdutosVenda();
+        return;
+    }
+
+    item.quantidade = novaQuantidade;
+    item.subtotal = item.precoFinalUnitario * novaQuantidade;
+
+    renderCarrinho();
+    renderProdutosVenda();
+}
+
+$(document).on("click", ".btn-cart-minus", function() {
+    const item = carrinho.find(i => i.id === $(this).data("id"));
+
+    if (item) {
+        atualizarItemCarrinho(item, item.quantidade - 1);
+    }
+});
+
+$(document).on("click", ".btn-cart-plus", function() {
+    const item = carrinho.find(i => i.id === $(this).data("id"));
+
+    if (item) {
+        atualizarItemCarrinho(item, item.quantidade + 1);
+    }
+});
+
+$(document).on("click", ".btn-cart-remove", function() {
+    const id = $(this).data("id");
+
+    carrinho = carrinho.filter(i => i.id !== id);
+
+    renderCarrinho();
+    renderProdutosVenda();
+});
+
+$("#ajusteTipo").on("change", function() {
+    ajusteCarrinho.tipo = $(this).val();
+
+    if (!ajusteCarrinho.tipo) {
+        ajusteCarrinho.valor = 0;
+    }
+
+    renderCarrinho();
+});
+
+$("#ajusteValor").on("input change", function() {
+    ajusteCarrinho.valor = Math.max(0, Number($(this).val() || 0));
+    renderCarrinho();
+});
+
+$("#btnLimparCarrinho").on("click", function() {
+    if (!carrinho.length) {
+        return;
+    }
+
+    if (confirm("Deseja limpar o carrinho?")) {
+        carrinho = [];
+        ajusteCarrinho = { tipo: "", valor: 0 };
+        renderCarrinho();
+        renderProdutosVenda();
+    }
+});
+
+$(document).on("click", "#btnCancelarEdicaoPedido", function() {
+    const pedido = pedidoEmEdicao();
+
+    if (!pedido) {
+        encerrarModoEdicaoPedido(true);
+        renderCarrinho();
+        renderProdutosVenda();
+        return;
+    }
+
+    if (!confirm(`Cancelar a edição de ${pedido.codigo || "este pedido"}? As alterações ainda não salvas serão descartadas.`)) {
+        return;
+    }
+
+    encerrarModoEdicaoPedido(true);
+    renderCarrinho();
+    renderProdutosVenda();
+});
+
+/* =========================================================
+   FINALIZAÇÃO DO PEDIDO
+========================================================= */
+
+$("#btnFinalizar").on("click", function() {
+    if (!carrinho.length) {
+        alert("Adicione pelo menos um produto ao carrinho.");
+        return;
+    }
+
+    const pedido = pedidoEmEdicao();
+
+    if (pedido) {
+        $("#clienteModalTitulo").text(`Editar ${pedido.codigo || "pedido"}`);
+        $("#clienteNome").val(pedido.cliente?.nome || "");
+        $("#clienteTelefone").val(pedido.cliente?.telefone || "");
+        $("#formaPagamento").val(
+            ["Dinheiro", "Pix", "Crédito", "Débito", "Outros"].includes(pedido.formaPagamento)
+                ? pedido.formaPagamento
+                : ""
+        );
+        $("#btnConfirmarPedido").html('<i class="bi bi-save"></i> Salvar alterações');
+    } else {
+        $("#clienteModalTitulo").text("Dados do cliente");
+        $("#clienteNome").val("");
+        $("#clienteTelefone").val("");
+        $("#formaPagamento").val("");
+        $("#btnConfirmarPedido").html('<i class="bi bi-check-circle"></i> Confirmar reserva');
+    }
+
+    clienteModal.show();
+});
+
+function mapaQuantidadesItens(itens) {
+    const mapa = new Map();
+
+    (itens || []).forEach(item => {
+        const atual = Number(mapa.get(item.produtoId) || 0);
+        mapa.set(item.produtoId, atual + Number(item.quantidade || 0));
+    });
+
+    return mapa;
+}
+
+function copiarItensCarrinhoParaPedido() {
+    return carrinho.map(item => ({
+        id: item.id || novoId(),
+        produtoId: item.produtoId,
+        nome: item.nome,
+        categoria: item.categoria,
+        unidade: item.unidade,
+        quantidade: Number(item.quantidade || 0),
+        valorUnitario: Number(item.valorUnitario || 0),
+        calda: {
+            id: item.calda?.id || null,
+            nome: item.calda?.nome || "Sem Calda",
+            valorAdicional: Number(item.calda?.valorAdicional || 0)
+        },
+        precoFinalUnitario: Number(item.precoFinalUnitario || 0),
+        subtotal: Number(item.subtotal || 0)
+    }));
+}
+
+$("#formCliente").on("submit", function(e) {
+    e.preventDefault();
+
+    const nome = $("#clienteNome").val().trim();
+    const telefone = $("#clienteTelefone").val().trim();
+    const formaPagamento = $("#formaPagamento").val() || "Não informado";
+    const pedidoEditado = pedidoEmEdicao();
+
+    if (!carrinho.length) {
+        alert("O pedido precisa ter pelo menos um item.");
+        return;
+    }
+
+    const novasQuantidades = mapaQuantidadesItens(carrinho);
+    const quantidadesOriginais = pedidoEditado
+        ? mapaQuantidadesItens(pedidoEditado.itens)
+        : new Map();
+
+    // Valida o estoque considerando que, durante a edição, as unidades já
+    // reservadas pelo próprio pedido podem ser reutilizadas sem nova baixa.
+    for (const [produtoId, quantidadeSolicitada] of novasQuantidades.entries()) {
+        const produto = obterProduto(produtoId);
+
+        if (!produto) {
+            alert("Um produto do carrinho não existe mais.");
+            return;
+        }
+
+        const quantidadeOriginal = Number(quantidadesOriginais.get(produtoId) || 0);
+        const maximoDisponivel = Number(produto.estoqueFatias || 0) + quantidadeOriginal;
+
+        if (quantidadeSolicitada > maximoDisponivel) {
+            alert(
+                `Estoque insuficiente para "${produto.nome}". ` +
+                `Disponível para este pedido: ${maximoDisponivel} ${nomeUnidadeEstoque(produto, maximoDisponivel)}.`
+            );
+            renderProdutosVenda();
+            return;
+        }
+    }
+
+    if (pedidoEditado) {
+        const produtosAfetados = new Set([
+            ...quantidadesOriginais.keys(),
+            ...novasQuantidades.keys()
+        ]);
+
+        produtosAfetados.forEach(produtoId => {
+            const produto = obterProduto(produtoId);
+            if (!produto) return;
+
+            const original = Number(quantidadesOriginais.get(produtoId) || 0);
+            const nova = Number(novasQuantidades.get(produtoId) || 0);
+
+            produto.estoqueFatias = Math.max(
+                0,
+                Number(produto.estoqueFatias || 0) + original - nova
+            );
+        });
+
+        pedidoEditado.cliente = { nome, telefone };
+        pedidoEditado.formaPagamento = formaPagamento;
+        pedidoEditado.itens = copiarItensCarrinhoParaPedido();
+        pedidoEditado.subtotal = subtotalCarrinho();
+        pedidoEditado.ajuste = {
+            tipo: ajusteCarrinho.tipo,
+            valor: valorAjusteCarrinho()
+        };
+        pedidoEditado.total = totalCarrinho();
+        pedidoEditado.atualizadoEm = new Date().toISOString();
+
+        const codigo = pedidoEditado.codigo || "Pedido";
+
+        salvarDados();
+        clienteModal.hide();
+        encerrarModoEdicaoPedido(true);
+
+        renderCarrinho();
+        renderProdutosVenda();
+        renderProdutosAdmin();
+        renderPedidos();
+
+        alert(`${codigo} atualizado com sucesso!`);
+        abrirPagina("pedidos");
+        return;
+    }
+
+    // Novo pedido: baixa o estoque normalmente.
+    novasQuantidades.forEach((quantidadeSolicitada, produtoId) => {
+        const produto = obterProduto(produtoId);
+        if (!produto) return;
+
+        produto.estoqueFatias = Math.max(
+            0,
+            Number(produto.estoqueFatias || 0) - Number(quantidadeSolicitada || 0)
+        );
+    });
+
+    const numero = Number(dados.configuracao.proximoPedido || 1);
+    const codigo = gerarCodigoPedido();
+
+    const pedido = {
+        id: novoId(),
+        numero: numero,
+        codigo: codigo,
+        cliente: { nome, telefone },
+        formaPagamento: formaPagamento,
+        itens: copiarItensCarrinhoParaPedido(),
+        subtotal: subtotalCarrinho(),
+        ajuste: {
+            tipo: ajusteCarrinho.tipo,
+            valor: valorAjusteCarrinho()
+        },
+        total: totalCarrinho(),
+        status: "Reservado",
+        criadoEm: new Date().toISOString()
+    };
+
+    dados.pedidos.unshift(pedido);
+    salvarDados();
+
+    carrinho = [];
+    ajusteCarrinho = { tipo: "", valor: 0 };
+    clienteModal.hide();
+
+    renderCarrinho();
+    renderProdutosVenda();
+    renderProdutosAdmin();
+    renderPedidos();
+
+    alert(`Pedido ${pedido.codigo} reservado com sucesso!`);
+    abrirPagina("pedidos");
+});
+
+/* =========================================================
+   PRODUTOS - ADMIN
+========================================================= */
+
+function renderProdutosAdmin() {
+    if (!dados.itens.length) {
+        $("#listaProdutosAdmin").html(`
+            <div class="col-12">
+                <div class="alert alert-light border text-center">
+                    Nenhum produto cadastrado.
+                </div>
+            </div>
+        `);
+        return;
+    }
+
+    $("#listaProdutosAdmin").html(
+        dados.itens.map(p => {
+            const estoque = `
+                <div class="small mt-2">
+                    <strong>Estoque:</strong>
+                    ${p.estoqueFatias} ${escapeHtml(nomeUnidadeEstoque(p, p.estoqueFatias))}
+                </div>
+            `;
+
+            const caldas = p.categoria === "Tortas"
+                ? `
+                    <div class="small text-muted mt-1">
+                        <strong>Caldas:</strong>
+                        ${p.caldaIds.length
+                            ? p.caldaIds.map(id => {
+                                const c = obterCalda(id);
+                                return c ? escapeHtml(c.nome) : "";
+                            }).filter(Boolean).join(", ")
+                            : "Apenas Sem Calda"
+                        }
+                    </div>
+                `
+                : "";
+
+            return `
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between gap-2">
+                                <div>
+                                    <div class="small text-muted">
+                                        ${escapeHtml(p.categoria)}
+                                    </div>
+
+                                    <h2 class="h5 mb-1">
+                                        ${escapeHtml(p.nome)}
+                                    </h2>
+                                </div>
+
+                                <strong>
+                                    ${dinheiro(p.valor)}
+                                </strong>
+                            </div>
+
+                            <div class="small text-muted">
+                                ${escapeHtml(p.descricao)}
+                            </div>
+
+                            ${estoque}
+                            ${caldas}
+
+                            <div class="d-flex gap-2 mt-3">
+                                <button class="btn btn-outline-primary btn-sm flex-grow-1 btn-editar-produto"
+                                        data-id="${escapeHtml(p.id)}">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm btn-excluir-produto"
+                                        data-id="${escapeHtml(p.id)}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join("")
+    );
+}
+
+/* =========================================================
+   EDIÇÃO DE ESTOQUE EM MASSA
+========================================================= */
+
+function renderEstoqueMassa() {
+    const termo = normalizarBuscaVenda($("#buscaEstoqueMassa").val() || "");
+
+    let produtos = [...dados.itens].sort((a, b) => {
+        const categoria = String(a.categoria || "").localeCompare(String(b.categoria || ""), "pt-BR");
+        if (categoria !== 0) return categoria;
+        return String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR");
+    });
+
+    if (termo) {
+        produtos = produtos.filter(p => {
+            const texto = normalizarBuscaVenda([
+                p.nome,
+                p.categoria,
+                p.descricao,
+                p.unidade
+            ].join(" "));
+            return texto.includes(termo);
+        });
+    }
+
+    if (!produtos.length) {
+        $("#listaEstoqueMassa").html(`
+            <div class="alert alert-light border text-center mb-0">
+                Nenhum produto encontrado.
+            </div>
+        `);
+        return;
+    }
+
+    $("#listaEstoqueMassa").html(`
+        <div class="border rounded overflow-hidden">
+            ${produtos.map((p, index) => `
+                <div class="p-3 ${index ? "border-top" : ""}">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-7 col-md-8">
+                            <div class="fw-semibold">${escapeHtml(p.nome)}</div>
+                            <div class="small text-muted">
+                                ${escapeHtml(p.categoria)} • ${escapeHtml(p.unidade || "Un")}
+                            </div>
+                        </div>
+                        <div class="col-5 col-md-4">
+                            <label class="form-label small mb-1">Estoque</label>
+                            <input type="number"
+                                   class="form-control estoque-massa-input"
+                                   min="0" step="1"
+                                   value="${Math.max(0, Number(estoqueMassaRascunho[p.id] ?? p.estoqueFatias ?? 0))}"
+                                   data-id="${escapeHtml(p.id)}"
+                                   inputmode="numeric">
+                        </div>
+                    </div>
+                </div>
+            `).join("")}
+        </div>
+        <div class="small text-muted mt-2">
+            ${produtos.length} ${produtos.length === 1 ? "produto exibido" : "produtos exibidos"}.
+        </div>
+    `);
+}
+
+$("#btnEstoqueMassa").on("click", function() {
+    if (!dados.itens.length) {
+        alert("Cadastre pelo menos um produto antes de editar o estoque.");
+        return;
+    }
+
+    estoqueMassaRascunho = Object.fromEntries(
+        dados.itens.map(p => [p.id, Math.max(0, Number(p.estoqueFatias || 0))])
+    );
+    $("#buscaEstoqueMassa").val("");
+    renderEstoqueMassa();
+    estoqueMassaModal.show();
+});
+
+$(document).on("input", "#buscaEstoqueMassa", renderEstoqueMassa);
+
+$(document).on("input", ".estoque-massa-input", function() {
+    const id = String($(this).data("id"));
+    const valor = Number($(this).val());
+
+    if (Number.isInteger(valor) && valor >= 0) {
+        estoqueMassaRascunho[id] = valor;
+        $(this).removeClass("is-invalid");
+    } else {
+        $(this).addClass("is-invalid");
+    }
+});
+
+$("#btnSalvarEstoqueMassa").on("click", function() {
+    const invalido = dados.itens.some(p => {
+        const valor = Number(estoqueMassaRascunho[p.id]);
+        return !Number.isInteger(valor) || valor < 0;
+    });
+
+    if (invalido) {
+        alert("Todos os estoques devem ser números inteiros iguais ou maiores que zero.");
+        return;
+    }
+
+    dados.itens.forEach(produto => {
+        produto.estoqueFatias = Number(estoqueMassaRascunho[produto.id]);
+    });
+
+    salvarDados();
+    renderProdutosAdmin();
+    renderProdutosVenda();
+    renderCarrinho();
+    estoqueMassaModal.hide();
+
+    alert("Estoques atualizados com sucesso.");
+});
+
+function montarChecklistCaldas(selecionadas = []) {
+    if (!dados.caldas.length) {
+        $("#checklistCaldasProduto").html(`
+            <div class="small text-muted">
+                Nenhuma calda cadastrada.
+                Cadastre caldas no menu "Caldas".
+            </div>
+        `);
+        return;
+    }
+
+    $("#checklistCaldasProduto").html(
+        dados.caldas.map(c => `
+            <div class="form-check">
+                <input
+                    class="form-check-input calda-produto-checkbox"
+                    type="checkbox"
+                    value="${escapeHtml(c.id)}"
+                    id="calda-prod-${escapeHtml(c.id)}"
+                    ${selecionadas.includes(c.id) ? "checked" : ""}
+                >
+
+                <label class="form-check-label" for="calda-prod-${escapeHtml(c.id)}">
+                    ${escapeHtml(c.nome)}
+                    ${c.valor > 0 ? `(+${dinheiro(c.valor)})` : ""}
+                </label>
+            </div>
+        `).join("")
+    );
+}
+
+function abrirNovoProduto() {
+    $("#produtoModalTitulo").text("Novo produto");
+
+    $("#produtoId").val("");
+    $("#produtoNome").val("");
+    $("#produtoDescricao").val("");
+    $("#produtoImagem").val("");
+    $("#produtoValor").val("");
+    $("#produtoCategoria").val("Tortas");
+    $("#produtoUnidade").val("Fatias");
+    $("#produtoEstoqueFatias").val(0);
+
+    montarChecklistCaldas([]);
+
+    atualizarCamposProduto();
+
+    produtoModal.show();
+}
+
+function abrirEditarProduto(id) {
+    const produto = obterProduto(id);
+
+    if (!produto) {
+        return;
+    }
+
+    $("#produtoModalTitulo").text("Editar produto");
+
+    $("#produtoId").val(produto.id);
+    $("#produtoNome").val(produto.nome);
+    $("#produtoDescricao").val(produto.descricao);
+    $("#produtoImagem").val(produto.imagem);
+    $("#produtoValor").val(produto.valor);
+    $("#produtoCategoria").val(produto.categoria);
+    $("#produtoUnidade").val(produto.unidade);
+    $("#produtoEstoqueFatias").val(produto.estoqueFatias);
+
+    montarChecklistCaldas(produto.caldaIds);
+
+    atualizarCamposProduto();
+
+    produtoModal.show();
+}
+
+$("#btnNovoProduto").on("click", abrirNovoProduto);
+
+$(document).on("click", ".btn-editar-produto", function() {
+    abrirEditarProduto($(this).data("id"));
+});
+
+$("#produtoCategoria, #produtoUnidade").on("change", atualizarCamposProduto);
+
+function atualizarCamposProduto() {
+    const categoria = $("#produtoCategoria").val();
+
+    // Estoque é obrigatório para todas as categorias.
+    $("#blocoEstoqueProduto").show();
+    $("#produtoEstoqueFatias").prop("required", true);
+
+    // Caldas continuam sendo uma configuração exclusiva das tortas.
+    if (categoria === "Tortas") {
+        $("#blocoCaldasTorta").show();
+    } else {
+        $("#blocoCaldasTorta").hide();
+    }
+}
+
+$("#formProduto").on("submit", function(e) {
+    e.preventDefault();
+
+    const id = $("#produtoId").val();
+
+    const nome = $("#produtoNome").val().trim();
+    const descricao = $("#produtoDescricao").val().trim();
+    const imagem = $("#produtoImagem").val().trim();
+    const valor = Number($("#produtoValor").val());
+    const categoria = $("#produtoCategoria").val();
+    const unidade = $("#produtoUnidade").val();
+
+    if (!nome) {
+        alert("Informe o nome do produto.");
+        return;
+    }
+
+    if (!Number.isFinite(valor) || valor < 0) {
+        alert("Informe um valor válido.");
+        return;
+    }
+
+    const estoqueFatias = Number($("#produtoEstoqueFatias").val());
+
+    if (!Number.isInteger(estoqueFatias) || estoqueFatias < 0) {
+        alert("Informe uma quantidade válida em estoque.");
+        return;
+    }
+
+    const caldaIds = $(".calda-produto-checkbox:checked")
+        .map(function() {
+            return $(this).val();
+        })
+        .get();
+
+    if (id) {
+        const produto = obterProduto(id);
+
+        if (!produto) {
+            alert("Produto não encontrado.");
+            return;
+        }
+
+        produto.nome = nome;
+        produto.descricao = descricao;
+        produto.imagem = imagem;
+        produto.valor = valor;
+        produto.categoria = categoria;
+        produto.unidade = unidade;
+        produto.estoqueFatias = estoqueFatias;
+        produto.caldaIds = categoria === "Tortas" ? caldaIds : [];
+
+    } else {
+        dados.itens.push({
+            id: novoId(),
+            nome: nome,
+            descricao: descricao,
+            imagem: imagem,
+            valor: valor,
+            categoria: categoria,
+            unidade: unidade,
+            estoqueFatias: estoqueFatias,
+            caldaIds: categoria === "Tortas" ? caldaIds : []
+        });
+    }
+
+    salvarDados();
+
+    produtoModal.hide();
+
+    renderProdutosAdmin();
+    renderProdutosVenda();
+});
+
+/* =========================================================
+   EXCLUSÃO DE PRODUTO
+========================================================= */
+
+$(document).on("click", ".btn-excluir-produto", function() {
+    const id = $(this).data("id");
+    const produto = obterProduto(id);
+
+    if (!produto) {
+        return;
+    }
+
+    const usadoEmPedido = dados.pedidos.some(p =>
+        p.itens.some(item => item.produtoId === id)
+    );
+
+    if (usadoEmPedido) {
+        alert(
+            "Este produto possui pedidos registrados e não pode ser excluído para preservar o histórico."
+        );
+        return;
+    }
+
+    if (!confirm(`Excluir o produto "${produto.nome}"?`)) {
+        return;
+    }
+
+    dados.itens = dados.itens.filter(p => p.id !== id);
+
+    carrinho = carrinho.filter(item => item.produtoId !== id);
+
+    salvarDados();
+
+    renderProdutosAdmin();
+    renderProdutosVenda();
+    renderCarrinho();
+});
+
+/* =========================================================
+   CALDAS
+========================================================= */
+
+function renderCaldas() {
+    if (!dados.caldas.length) {
+        $("#listaCaldas").html(`
+            <div class="col-12">
+                <div class="alert alert-light border text-center">
+                    Nenhuma calda cadastrada.
+                </div>
+            </div>
+        `);
+        return;
+    }
+
+    $("#listaCaldas").html(
+        dados.caldas.map(c => {
+            const usada = dados.itens.some(p =>
+                p.categoria === "Tortas" &&
+                p.caldaIds.includes(c.id)
+            );
+
+            return `
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+
+                            <h2 class="h5">
+                                ${escapeHtml(c.nome)}
+                            </h2>
+
+                            <div class="mb-3">
+                                ${c.valor > 0
+                                    ? `+${dinheiro(c.valor)} por fatia`
+                                    : "Sem valor adicional"
+                                }
+                            </div>
+
+                            ${usada
+                                ? `<span class="badge text-bg-info mb-3">
+                                    Em uso por uma ou mais tortas
+                                   </span>`
+                                : ""
+                            }
+
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-primary btn-sm flex-grow-1 btn-editar-calda"
+                                        data-id="${escapeHtml(c.id)}">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm btn-excluir-calda"
+                                        data-id="${escapeHtml(c.id)}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join("")
+    );
+}
+
+function abrirNovaCalda() {
+    $("#caldaModalTitulo").text("Nova calda");
+
+    $("#caldaId").val("");
+    $("#caldaNome").val("");
+    $("#caldaValor").val(0);
+
+    caldaModal.show();
+}
+
+function abrirEditarCalda(id) {
+    const calda = obterCalda(id);
+
+    if (!calda) {
+        return;
+    }
+
+    $("#caldaModalTitulo").text("Editar calda");
+
+    $("#caldaId").val(calda.id);
+    $("#caldaNome").val(calda.nome);
+    $("#caldaValor").val(calda.valor);
+
+    caldaModal.show();
+}
+
+$("#btnNovaCalda").on("click", abrirNovaCalda);
+
+$(document).on("click", ".btn-editar-calda", function() {
+    abrirEditarCalda($(this).data("id"));
+});
+
+$("#formCalda").on("submit", function(e) {
+    e.preventDefault();
+
+    const id = $("#caldaId").val();
+    const nome = $("#caldaNome").val().trim();
+    const valor = Number($("#caldaValor").val());
+
+    if (!nome) {
+        alert("Informe o nome da calda.");
+        return;
+    }
+
+    if (!Number.isFinite(valor) || valor < 0) {
+        alert("Informe um valor válido.");
+        return;
+    }
+
+    if (id) {
+        const calda = obterCalda(id);
+
+        if (!calda) {
+            alert("Calda não encontrada.");
+            return;
+        }
+
+        calda.nome = nome;
+        calda.valor = valor;
+
+    } else {
+        dados.caldas.push({
+            id: novoId(),
+            nome: nome,
+            valor: valor
+        });
+    }
+
+    salvarDados();
+
+    caldaModal.hide();
+
+    renderCaldas();
+    renderProdutosAdmin();
+});
+
+$(document).on("click", ".btn-excluir-calda", function() {
+    const id = $(this).data("id");
+    const calda = obterCalda(id);
+
+    if (!calda) {
+        return;
+    }
+
+    const usada = dados.itens.some(p =>
+        p.categoria === "Tortas" &&
+        p.caldaIds.includes(id)
+    );
+
+    if (usada) {
+        alert(
+            "Esta calda está vinculada a uma ou mais tortas. " +
+            "Remova a calda dessas tortas antes de excluí-la."
+        );
+        return;
+    }
+
+    if (!confirm(`Excluir a calda "${calda.nome}"?`)) {
+        return;
+    }
+
+    dados.caldas = dados.caldas.filter(c => c.id !== id);
+
+    salvarDados();
+
+    renderCaldas();
+    renderProdutosAdmin();
+});
+
+/* =========================================================
+   PEDIDOS
+========================================================= */
+
+function renderPedidos() {
+    $("#contadorPedidos").text(dados.pedidos.length);
+
+    if (!dados.pedidos.length) {
+        $("#listaPedidos").html(`
+            <div class="alert alert-light border text-center">
+                Nenhum pedido registrado.
+            </div>
+        `);
+        return;
+    }
+
+    const pedidosReserva = dados.pedidos.filter(p => p.status !== "Concluído");
+    const pedidosConcluidos = dados.pedidos.filter(p => p.status === "Concluído");
+    const saldoTotalConcluidos = pedidosConcluidos.reduce(
+        (total, pedido) => total + Number(pedido.total || 0),
+        0
+    );
+
+    const formasPagamento = ["Dinheiro", "Pix", "Crédito", "Débito", "Outros"];
+    const saldoPorPagamento = formasPagamento.map(forma => {
+        const pedidos = pedidosConcluidos.filter(p => p.formaPagamento === forma);
+        return {
+            forma: forma,
+            quantidade: pedidos.length,
+            total: pedidos.reduce((soma, p) => soma + Number(p.total || 0), 0)
+        };
+    });
+
+    const pedidosSemPagamento = pedidosConcluidos.filter(p =>
+        !formasPagamento.includes(p.formaPagamento)
+    );
+
+    if (pedidosSemPagamento.length) {
+        saldoPorPagamento.push({
+            forma: "Não informado",
+            quantidade: pedidosSemPagamento.length,
+            total: pedidosSemPagamento.reduce((soma, p) => soma + Number(p.total || 0), 0)
+        });
+    }
+
+    function cardPedido(p) {
+        const concluido = p.status === "Concluído";
+
+        return `
+            <div class="card shadow-sm mb-3 ${concluido ? "border-success" : ""}">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between gap-2">
+                        <div>
+                            <span class="badge text-bg-primary">
+                                ${escapeHtml(p.codigo)}
+                            </span>
+
+                            <h2 class="h5 mt-2 mb-1">
+                                ${escapeHtml(p.cliente?.nome || "Cliente não informado")}
+                            </h2>
+
+                            <div class="small text-muted">
+                                <i class="bi bi-telephone"></i>
+                                ${escapeHtml(p.cliente.telefone || "Não informado")}
+                            </div>
+
+                            <div class="small mt-1">
+                                <i class="bi bi-wallet2"></i>
+                                <strong>Pagamento:</strong> ${escapeHtml(p.formaPagamento || "Não informado")}
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <strong class="fs-5">
+                                ${dinheiro(p.total)}
+                            </strong>
+
+                            ${p.ajuste?.tipo && Number(p.ajuste?.valor || 0) > 0 ? `
+                                <div class="small ${p.ajuste.tipo === "desconto" ? "text-danger" : "text-success"}">
+                                    ${p.ajuste.tipo === "desconto" ? "Desconto" : "Acréscimo"}:
+                                    ${p.ajuste.tipo === "desconto" ? "-" : "+"}${dinheiro(p.ajuste.valor)}
+                                </div>
+                            ` : ""}
+
+                            <div>
+                                <span class="badge ${concluido ? "text-bg-success" : "text-bg-warning"}">
+                                    ${escapeHtml(p.status)}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div>
+                        ${p.itens.map(item => `
+                            <div class="d-flex justify-content-between mb-2 gap-2">
+                                <div>
+                                    <strong>
+                                        ${item.quantidade}×
+                                        ${escapeHtml(item.nome)}
+                                    </strong>
+
+                                    <div class="small mt-1">
+                                        <span class="badge text-bg-light border">
+                                            ${escapeHtml(formatarTipoItem(item.categoria))}
+                                        </span>
+                                    </div>
+
+                                    ${item.categoria === "Tortas" ? `
+                                        <div class="small text-muted mt-1">
+                                            Calda: ${escapeHtml(item.calda?.nome || "Sem Calda")}
+                                        </div>
+                                    ` : ""}
+                                </div>
+
+                                <span>
+                                    ${dinheiro(item.subtotal)}
+                                </span>
+                            </div>
+                        `).join("")}
+                    </div>
+
+                    <div class="small text-muted mt-3">
+                        Criado em: ${formatarData(p.criadoEm)}
+                        ${concluido && p.concluidoEm ? `<br>Concluído em: ${formatarData(p.concluidoEm)}` : ""}
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3 flex-wrap">
+                        ${!concluido ? `
+                            <button class="btn btn-outline-primary btn-sm btn-editar-pedido"
+                                    data-id="${escapeHtml(p.id)}">
+                                <i class="bi bi-pencil-square"></i> Editar pedido
+                            </button>
+
+                            <button class="btn btn-success btn-sm btn-concluir-pedido"
+                                    data-id="${escapeHtml(p.id)}">
+                                <i class="bi bi-check2-circle"></i> Concluir pedido
+                            </button>
+                        ` : `
+                            <button class="btn btn-outline-warning btn-sm btn-reverter-pedido"
+                                    data-id="${escapeHtml(p.id)}">
+                                <i class="bi bi-arrow-counterclockwise"></i> Reverter
+                            </button>
+                        `}
+
+                        <button class="btn btn-outline-secondary btn-sm btn-imprimir-pedido"
+                                data-id="${escapeHtml(p.id)}">
+                            <i class="bi bi-printer"></i> Imprimir
+                        </button>
+
+                        <button class="btn btn-outline-danger btn-sm btn-excluir-pedido"
+                                data-id="${escapeHtml(p.id)}">
+                            <i class="bi bi-trash"></i> Excluir pedido
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        `;
+    }
+
+    const blocoReserva = `
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <strong class="text-warning-emphasis">EM RESERVA</strong>
+            <span class="badge text-bg-warning">${pedidosReserva.length}</span>
+            <div class="flex-grow-1 border-top"></div>
+        </div>
+        ${pedidosReserva.length
+            ? pedidosReserva.map(cardPedido).join("")
+            : `<div class="alert alert-light border text-center">Nenhum pedido em reserva.</div>`
+        }
+    `;
+
+    const blocoConcluidos = `
+        <div class="d-flex align-items-center gap-2 mt-4 mb-3">
+            <strong class="text-success">CONCLUÍDOS</strong>
+            <span class="badge text-bg-success">${pedidosConcluidos.length}</span>
+            <div class="flex-grow-1 border-top"></div>
+        </div>
+        ${pedidosConcluidos.length
+            ? pedidosConcluidos.map(cardPedido).join("")
+            : `<div class="alert alert-light border text-center">Nenhum pedido concluído.</div>`
+        }
+
+        <div class="card border-success-subtle shadow-sm mt-3 mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+                    <div>
+                        <div class="small text-muted">Saldo total dos pedidos concluídos</div>
+                        <div class="fs-4 fw-bold text-success">
+                            ${dinheiro(saldoTotalConcluidos)}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-outline-success btn-sm" id="btnSaldoPorPagamento"
+                                ${pedidosConcluidos.length ? "" : "disabled"}>
+                            <i class="bi bi-wallet2"></i> Saldo por forma de pagamento
+                        </button>
+
+                        ${pedidosConcluidos.length ? `
+                            <button class="btn btn-outline-dark btn-sm" id="btnRelatorioItensVendidosAtual">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Relatório de itens vendidos
+                            </button>
+
+                            <button class="btn btn-primary btn-sm" id="btnArquivarConcluidos">
+                                <i class="bi bi-archive"></i> Arquivar concluídos
+                            </button>
+
+                            <button class="btn btn-outline-danger btn-sm" id="btnExcluirTodosConcluidos">
+                                <i class="bi bi-trash3"></i> Excluir todos os concluídos
+                            </button>
+                        ` : ""}
+                    </div>
+                </div>
+
+                <div id="saldoPorPagamentoDetalhes" class="d-none mt-3 pt-3 border-top">
+                    <div class="fw-semibold mb-2">Saldo separado por forma de pagamento</div>
+                    <div class="row g-2">
+                        ${saldoPorPagamento.map(item => `
+                            <div class="col-12 col-sm-6 col-lg-4">
+                                <div class="border rounded p-2 h-100 bg-light">
+                                    <div class="d-flex justify-content-between gap-2">
+                                        <span>${escapeHtml(item.forma)}</span>
+                                        <strong>${dinheiro(item.total)}</strong>
+                                    </div>
+                                    <div class="small text-muted">
+                                        ${item.quantidade} ${item.quantidade === 1 ? "pedido" : "pedidos"}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join("")}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    $("#listaPedidos").html(blocoReserva + blocoConcluidos);
+}
+
+function formatarTipoItem(categoria) {
+    const tipos = {
+        Tortas: "Torta",
+        Biscoitos: "Biscoito",
+        Bebidas: "Bebida",
+        Outros: "Outro"
+    };
+
+    return tipos[categoria] || categoria || "Sem categoria";
+}
+
+function formatarData(dataIso) {
+    try {
+        return new Date(dataIso).toLocaleString("pt-BR");
+    } catch {
+        return dataIso;
+    }
+}
+
+
+function resumirItensVendidos(pedidos) {
+    const mapa = new Map();
+
+    (pedidos || []).forEach(pedido => {
+        (pedido.itens || []).forEach(item => {
+            const quantidade = Math.max(0, Number(item.quantidade || 0));
+
+            if (quantidade <= 0) {
+                return;
+            }
+
+            const valorBase = Math.max(0, Number(item.valorUnitario || 0));
+            const valorFinal = Math.max(
+                0,
+                Number(
+                    item.precoFinalUnitario ??
+                    (valorBase + Number(item.calda?.valorAdicional || 0))
+                )
+            );
+            const subtotal = Math.max(
+                0,
+                Number(item.subtotal ?? (valorFinal * quantidade))
+            );
+
+            const chave = item.produtoId
+                ? `id:${item.produtoId}`
+                : `nome:${String(item.nome || "Produto").toLowerCase()}|${item.categoria || ""}|${item.unidade || ""}`;
+
+            if (!mapa.has(chave)) {
+                mapa.set(chave, {
+                    nome: item.nome || "Produto",
+                    categoria: item.categoria || "",
+                    unidade: item.unidade || "-",
+                    quantidade: 0,
+                    totalBase: 0,
+                    totalBruto: 0
+                });
+            }
+
+            const grupo = mapa.get(chave);
+            grupo.quantidade += quantidade;
+            grupo.totalBase += valorBase * quantidade;
+            grupo.totalBruto += subtotal;
+        });
+    });
+
+    return Array.from(mapa.values())
+        .map(item => ({
+            ...item,
+            valorBaseMedio: item.quantidade > 0 ? item.totalBase / item.quantidade : 0,
+            valorFinalMedio: item.quantidade > 0 ? item.totalBruto / item.quantidade : 0
+        }))
+        .sort((a, b) => {
+            const tipoA = formatarTipoItem(a.categoria);
+            const tipoB = formatarTipoItem(b.categoria);
+            return tipoA.localeCompare(tipoB, "pt-BR") || a.nome.localeCompare(b.nome, "pt-BR");
+        });
+}
+
+function imprimirRelatorioItensVendidos(pedidos, titulo, subtitulo = "") {
+    const listaPedidos = Array.isArray(pedidos) ? pedidos : [];
+
+    if (!listaPedidos.length) {
+        alert("Não há pedidos concluídos para gerar este relatório.");
+        return;
+    }
+
+    const itens = resumirItensVendidos(listaPedidos);
+
+    if (!itens.length) {
+        alert("Não há itens vendidos registrados nesses pedidos.");
+        return;
+    }
+
+    const quantidadeItens = itens.reduce(
+        (soma, item) => soma + Number(item.quantidade || 0),
+        0
+    );
+
+    const totalBrutoItens = itens.reduce(
+        (soma, item) => soma + Number(item.totalBruto || 0),
+        0
+    );
+
+    const totalDescontos = listaPedidos.reduce((soma, pedido) => {
+        return soma + (
+            pedido.ajuste?.tipo === "desconto"
+                ? Number(pedido.ajuste?.valor || 0)
+                : 0
+        );
+    }, 0);
+
+    const totalAcrescimos = listaPedidos.reduce((soma, pedido) => {
+        return soma + (
+            pedido.ajuste?.tipo === "acrescimo"
+                ? Number(pedido.ajuste?.valor || 0)
+                : 0
+        );
+    }, 0);
+
+    const totalLiquido = listaPedidos.reduce(
+        (soma, pedido) => soma + Number(pedido.total || 0),
+        0
+    );
+
+    const linhas = itens.map((item, indice) => `
+        <tr>
+            <td style="padding:7px;border:1px solid #ccc;text-align:center;vertical-align:top;">
+                ${indice + 1}
+            </td>
+            <td style="padding:7px;border:1px solid #ccc;vertical-align:top;">
+                <strong>${escapeHtml(item.nome)}</strong>
+                <div style="font-size:11px;color:#666;">Unidade: ${escapeHtml(item.unidade || "-")}</div>
+            </td>
+            <td style="padding:7px;border:1px solid #ccc;vertical-align:top;">
+                ${escapeHtml(formatarTipoItem(item.categoria))}
+            </td>
+            <td style="padding:7px;border:1px solid #ccc;text-align:center;vertical-align:top;font-weight:700;">
+                ${item.quantidade}
+            </td>
+            <td style="padding:7px;border:1px solid #ccc;text-align:right;vertical-align:top;">
+                ${dinheiro(item.valorBaseMedio)}
+            </td>
+            <td style="padding:7px;border:1px solid #ccc;text-align:right;vertical-align:top;">
+                ${dinheiro(item.valorFinalMedio)}
+            </td>
+            <td style="padding:7px;border:1px solid #ccc;text-align:right;vertical-align:top;font-weight:700;">
+                ${dinheiro(item.totalBruto)}
+            </td>
+        </tr>
+    `).join("");
+
+    $("#printArea").html(`
+        <div style="max-width:980px;margin:0 auto;font-family:Arial,sans-serif;color:#111;">
+            <div style="border-bottom:2px solid #222;padding-bottom:12px;margin-bottom:16px;">
+                <div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#666;">
+                    DOCE SONHO • Prestação de contas
+                </div>
+                <h1 style="font-size:25px;margin:4px 0 4px;">
+                    Relatório de itens vendidos
+                </h1>
+                <div style="font-size:16px;font-weight:700;">${escapeHtml(titulo)}</div>
+                ${subtitulo ? `<div style="font-size:12px;color:#666;margin-top:3px;">${escapeHtml(subtitulo)}</div>` : ""}
+            </div>
+
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+                <div style="border:1px solid #ccc;border-radius:6px;padding:9px 12px;min-width:150px;">
+                    <div style="font-size:11px;color:#666;text-transform:uppercase;">Pedidos concluídos</div>
+                    <strong style="font-size:20px;">${listaPedidos.length}</strong>
+                </div>
+                <div style="border:1px solid #ccc;border-radius:6px;padding:9px 12px;min-width:150px;">
+                    <div style="font-size:11px;color:#666;text-transform:uppercase;">Unidades vendidas</div>
+                    <strong style="font-size:20px;">${quantidadeItens}</strong>
+                </div>
+                <div style="border:1px solid #ccc;border-radius:6px;padding:9px 12px;min-width:180px;">
+                    <div style="font-size:11px;color:#666;text-transform:uppercase;">Total líquido</div>
+                    <strong style="font-size:20px;">${dinheiro(totalLiquido)}</strong>
+                </div>
+            </div>
+
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                <thead>
+                    <tr style="background:#f2f2f2;">
+                        <th style="padding:7px;border:1px solid #ccc;text-align:center;">#</th>
+                        <th style="padding:7px;border:1px solid #ccc;text-align:left;">Item</th>
+                        <th style="padding:7px;border:1px solid #ccc;text-align:left;">Tipo</th>
+                        <th style="padding:7px;border:1px solid #ccc;text-align:center;">Qtd.</th>
+                        <th style="padding:7px;border:1px solid #ccc;text-align:right;">Valor base médio</th>
+                        <th style="padding:7px;border:1px solid #ccc;text-align:right;">Valor final médio</th>
+                        <th style="padding:7px;border:1px solid #ccc;text-align:right;">Total bruto</th>
+                    </tr>
+                </thead>
+                <tbody>${linhas}</tbody>
+            </table>
+
+            <div style="display:flex;justify-content:flex-end;margin-top:18px;">
+                <div style="min-width:340px;border-top:2px solid #222;padding-top:10px;font-size:13px;">
+                    <div style="display:flex;justify-content:space-between;gap:24px;margin-bottom:5px;">
+                        <span>Total bruto dos itens</span>
+                        <strong>${dinheiro(totalBrutoItens)}</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;gap:24px;margin-bottom:5px;">
+                        <span>Descontos nos pedidos</span>
+                        <strong>-${dinheiro(totalDescontos)}</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;gap:24px;margin-bottom:8px;">
+                        <span>Acréscimos nos pedidos</span>
+                        <strong>+${dinheiro(totalAcrescimos)}</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;gap:24px;border-top:1px solid #ccc;padding-top:8px;font-size:16px;">
+                        <span>Total líquido vendido</span>
+                        <strong>${dinheiro(totalLiquido)}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:22px;padding-top:9px;border-top:1px solid #ddd;font-size:10px;color:#666;line-height:1.4;">
+                Valor base médio = preço do produto sem adicionais. Valor final médio considera adicionais registrados nos itens, como caldas.
+                Descontos e acréscimos aplicados no fechamento aparecem no resumo financeiro acima.
+                Relatório gerado em ${escapeHtml(new Date().toLocaleString("pt-BR"))}.
+            </div>
+        </div>
+    `);
+
+    window.print();
+}
+
+function renderArquivados() {
+    const arquivos = Array.isArray(dados.arquivos) ? dados.arquivos : [];
+    const totalPedidosArquivados = arquivos.reduce(
+        (total, arquivo) => total + Number((arquivo.pedidos || []).length),
+        0
+    );
+
+    $("#contadorArquivos").text(totalPedidosArquivados);
+
+    if (!arquivos.length) {
+        $("#listaArquivos").html(`
+            <div class="alert alert-light border text-center">
+                Nenhum evento arquivado ainda.<br>
+                <span class="small text-muted">
+                    Na tela Pedidos, use “Arquivar concluídos” para guardar o histórico de um evento.
+                </span>
+            </div>
+        `);
+        return;
+    }
+
+    const formasPagamento = ["Dinheiro", "Pix", "Crédito", "Débito", "Outros"];
+
+    $("#listaArquivos").html(
+        arquivos.map((arquivo, indiceArquivo) => {
+            const pedidos = Array.isArray(arquivo.pedidos) ? arquivo.pedidos : [];
+            const totalArquivo = pedidos.reduce(
+                (soma, pedido) => soma + Number(pedido.total || 0),
+                0
+            );
+            const collapseId = `arquivo-${String(arquivo.id).replace(/[^a-zA-Z0-9_-]/g, "")}`;
+
+            const resumoPagamentos = formasPagamento.map(forma => {
+                const grupo = pedidos.filter(p => p.formaPagamento === forma);
+                return {
+                    forma,
+                    quantidade: grupo.length,
+                    total: grupo.reduce((soma, p) => soma + Number(p.total || 0), 0)
+                };
+            }).filter(item => item.quantidade > 0);
+
+            const semPagamento = pedidos.filter(p => !formasPagamento.includes(p.formaPagamento));
+            if (semPagamento.length) {
+                resumoPagamentos.push({
+                    forma: "Não informado",
+                    quantidade: semPagamento.length,
+                    total: semPagamento.reduce((soma, p) => soma + Number(p.total || 0), 0)
+                });
+            }
+
+            return `
+                <div class="card shadow-sm mb-3 border-secondary-subtle">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                            <div>
+                                <div class="small text-muted">Evento arquivado</div>
+                                <h2 class="h5 mb-1">${escapeHtml(arquivo.nome)}</h2>
+                                <div class="small text-muted">
+                                    Arquivado em ${escapeHtml(formatarData(arquivo.arquivadoEm))}
+                                </div>
+                            </div>
+
+                            <div class="text-end">
+                                <div class="fw-bold fs-5">${dinheiro(totalArquivo)}</div>
+                                <div class="small text-muted">
+                                    ${pedidos.length} ${pedidos.length === 1 ? "pedido" : "pedidos"}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mt-2">
+                            ${resumoPagamentos.map(item => `
+                                <div class="col-6 col-md-4 col-xl-3">
+                                    <div class="border rounded p-2 bg-light h-100">
+                                        <div class="small text-muted">${escapeHtml(item.forma)}</div>
+                                        <strong>${dinheiro(item.total)}</strong>
+                                        <div class="small text-muted">
+                                            ${item.quantidade} ${item.quantidade === 1 ? "pedido" : "pedidos"}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>
+
+                        <div class="d-flex gap-2 mt-3 flex-wrap">
+                            <button class="btn btn-outline-secondary btn-sm"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#${collapseId}">
+                                <i class="bi bi-eye"></i> Ver pedidos arquivados
+                            </button>
+
+                            <button class="btn btn-outline-dark btn-sm btn-relatorio-itens-evento"
+                                    type="button"
+                                    data-id="${escapeHtml(arquivo.id)}">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Relatório de itens vendidos
+                            </button>
+
+                            <button class="btn btn-outline-danger btn-sm btn-excluir-evento-arquivado"
+                                    type="button"
+                                    data-id="${escapeHtml(arquivo.id)}">
+                                <i class="bi bi-trash"></i> Excluir evento
+                            </button>
+                        </div>
+
+                        <div class="collapse mt-3" id="${collapseId}">
+                            <div class="border-top pt-3">
+                                ${pedidos.map(pedido => `
+                                    <div class="border rounded p-3 mb-2 bg-body-tertiary">
+                                        <div class="d-flex justify-content-between gap-3 flex-wrap">
+                                            <div>
+                                                <span class="badge text-bg-secondary">${escapeHtml(pedido.codigo)}</span>
+                                                <div class="fw-semibold mt-1">${escapeHtml(pedido.cliente?.nome || "Cliente não informado")}</div>
+                                                <div class="small text-muted">
+                                                    ${escapeHtml(pedido.cliente?.telefone || "Telefone não informado")}
+                                                </div>
+                                                <div class="small">
+                                                    <strong>Pagamento:</strong> ${escapeHtml(pedido.formaPagamento || "Não informado")}
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <strong>${dinheiro(pedido.total)}</strong>
+                                                <div class="small text-muted">
+                                                    ${pedido.concluidoEm ? `Concluído em ${escapeHtml(formatarData(pedido.concluidoEm))}` : "Concluído"}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <details class="mt-2">
+                                            <summary class="small fw-semibold" style="cursor:pointer;">Itens do pedido</summary>
+                                            <div class="mt-2">
+                                                ${(pedido.itens || []).map(item => `
+                                                    <div class="d-flex justify-content-between gap-2 small mb-1">
+                                                        <span>
+                                                            ${Number(item.quantidade || 0)}× ${escapeHtml(item.nome || "Produto")}
+                                                            <span class="text-muted">(${escapeHtml(formatarTipoItem(item.categoria))})</span>
+                                                            ${item.categoria === "Tortas" ? ` — Calda: ${escapeHtml(item.calda?.nome || "Sem Calda")}` : ""}
+                                                        </span>
+                                                        <strong>${dinheiro(item.subtotal)}</strong>
+                                                    </div>
+                                                `).join("")}
+                                            </div>
+                                        </details>
+
+                                        <button class="btn btn-outline-secondary btn-sm mt-2 btn-imprimir-pedido"
+                                                data-id="${escapeHtml(pedido.id)}">
+                                            <i class="bi bi-printer"></i> Imprimir pedido
+                                        </button>
+                                    </div>
+                                `).join("")}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join("")
+    );
+}
+
+
+$(document).on("click", "#btnRelatorioItensVendidosAtual", function() {
+    const pedidosConcluidos = dados.pedidos.filter(p => p.status === "Concluído");
+
+    imprimirRelatorioItensVendidos(
+        pedidosConcluidos,
+        "Evento atual — pedidos concluídos",
+        "Prestação de contas dos itens vendidos antes do arquivamento do evento."
+    );
+});
+
+$(document).on("click", ".btn-relatorio-itens-evento", function() {
+    const id = String($(this).data("id"));
+    const arquivo = (Array.isArray(dados.arquivos) ? dados.arquivos : [])
+        .find(a => String(a.id) === id);
+
+    if (!arquivo) {
+        alert("Evento arquivado não encontrado.");
+        return;
+    }
+
+    imprimirRelatorioItensVendidos(
+        arquivo.pedidos || [],
+        arquivo.nome || "Evento arquivado",
+        `Evento arquivado em ${formatarData(arquivo.arquivadoEm)}`
+    );
+});
+
+$(document).on("click", "#btnArquivarConcluidos", function() {
+    const pedidosConcluidos = dados.pedidos.filter(p => p.status === "Concluído");
+
+    if (!pedidosConcluidos.length) {
+        alert("Não há pedidos concluídos para arquivar.");
+        return;
+    }
+
+    const hoje = new Date().toLocaleDateString("pt-BR");
+    const nomeInformado = prompt(
+        "Dê um nome para este evento/arquivo:",
+        `Evento ${hoje}`
+    );
+
+    if (nomeInformado === null) {
+        return;
+    }
+
+    const nome = nomeInformado.trim() || `Evento ${hoje}`;
+    const total = pedidosConcluidos.reduce(
+        (soma, pedido) => soma + Number(pedido.total || 0),
+        0
+    );
+
+    if (!confirm(
+        `Arquivar ${pedidosConcluidos.length} ${pedidosConcluidos.length === 1 ? "pedido concluído" : "pedidos concluídos"} em “${nome}”?\n\n` +
+        `Saldo do evento: ${dinheiro(total)}\n\n` +
+        `Eles sairão da lista atual de Concluídos e continuarão disponíveis na área Arquivos.`
+    )) {
+        return;
+    }
+
+    if (!Array.isArray(dados.arquivos)) {
+        dados.arquivos = [];
+    }
+
+    dados.arquivos.unshift({
+        id: novoId(),
+        nome: nome,
+        arquivadoEm: new Date().toISOString(),
+        pedidos: pedidosConcluidos.map(p => structuredClone(p))
+    });
+
+    dados.pedidos = dados.pedidos.filter(p => p.status !== "Concluído");
+
+    salvarDados();
+    renderPedidos();
+    renderArquivados();
+
+    alert(`Evento “${nome}” arquivado com sucesso.`);
+    abrirPagina("arquivados");
+});
+
+$(document).on("click", ".btn-excluir-evento-arquivado", function() {
+    const id = String($(this).data("id"));
+    const arquivos = Array.isArray(dados.arquivos) ? dados.arquivos : [];
+    const arquivo = arquivos.find(a => String(a.id) === id);
+
+    if (!arquivo) {
+        alert("Evento arquivado não encontrado.");
+        return;
+    }
+
+    const pedidos = Array.isArray(arquivo.pedidos) ? arquivo.pedidos : [];
+    const total = pedidos.reduce(
+        (soma, pedido) => soma + Number(pedido.total || 0),
+        0
+    );
+
+    if (!confirm(
+        `Excluir definitivamente o evento “${arquivo.nome}”?\n\n` +
+        `${pedidos.length} ${pedidos.length === 1 ? "pedido arquivado" : "pedidos arquivados"}\n` +
+        `Saldo registrado: ${dinheiro(total)}\n\n` +
+        `Esta ação apaga o evento e seus pedidos arquivados e não poderá ser desfeita.`
+    )) {
+        return;
+    }
+
+    dados.arquivos = arquivos.filter(a => String(a.id) !== id);
+
+    salvarDados();
+    renderArquivados();
+
+    alert(`Evento “${arquivo.nome}” excluído do arquivo.`);
+});
+
+$(document).on("click", ".btn-editar-pedido", function() {
+    const id = $(this).data("id");
+    const pedido = dados.pedidos.find(p => p.id === id);
+
+    if (!pedido) {
+        alert("Pedido não encontrado.");
+        return;
+    }
+
+    if (pedido.status === "Concluído") {
+        alert("Somente pedidos em reserva podem ser editados.");
+        return;
+    }
+
+    if (pedidoEmEdicaoId && pedidoEmEdicaoId !== pedido.id) {
+        if (!confirm("Já existe outro pedido sendo editado. Deseja descartar aquela edição e abrir este pedido?")) {
+            return;
+        }
+    } else if (carrinho.length && !pedidoEmEdicaoId) {
+        if (!confirm("Há itens no carrinho de uma nova venda. Deseja substituir o carrinho pelos itens deste pedido?")) {
+            return;
+        }
+    }
+
+    pedidoEmEdicaoId = pedido.id;
+    itemCarrinhoEmEdicaoId = null;
+    carrinho = (pedido.itens || []).map(item => ({
+        id: item.id || novoId(),
+        produtoId: item.produtoId,
+        nome: item.nome,
+        categoria: item.categoria,
+        unidade: item.unidade,
+        quantidade: Number(item.quantidade || 0),
+        valorUnitario: Number(item.valorUnitario || 0),
+        calda: {
+            id: item.calda?.id || null,
+            nome: item.calda?.nome || "Sem Calda",
+            valorAdicional: Number(item.calda?.valorAdicional || 0)
+        },
+        precoFinalUnitario: Number(
+            item.precoFinalUnitario ??
+            (Number(item.valorUnitario || 0) + Number(item.calda?.valorAdicional || 0))
+        ),
+        subtotal: Number(
+            item.subtotal ??
+            (Number(item.precoFinalUnitario || item.valorUnitario || 0) * Number(item.quantidade || 0))
+        )
+    }));
+
+    ajusteCarrinho = {
+        tipo: ["desconto", "acrescimo"].includes(pedido.ajuste?.tipo) ? pedido.ajuste.tipo : "",
+        valor: Math.max(0, Number(pedido.ajuste?.valor || 0))
+    };
+
+    buscaVenda = "";
+    $("#buscaVenda").val("");
+
+    abrirPagina("venda");
+    renderCarrinho();
+    renderProdutosVenda();
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+$(document).on("click", "#btnSaldoPorPagamento", function() {
+    const detalhes = $("#saldoPorPagamentoDetalhes");
+    const aberto = !detalhes.hasClass("d-none");
+
+    detalhes.toggleClass("d-none", aberto);
+
+    $(this).html(
+        aberto
+            ? '<i class="bi bi-wallet2"></i> Saldo por forma de pagamento'
+            : '<i class="bi bi-chevron-up"></i> Ocultar saldos'
+    );
+});
+
+$(document).on("click", ".btn-concluir-pedido", function() {
+    const id = $(this).data("id");
+    const pedido = dados.pedidos.find(p => p.id === id);
+
+    if (!pedido) {
+        alert("Pedido não encontrado.");
+        return;
+    }
+
+    if (pedido.status === "Concluído") {
+        return;
+    }
+
+    if (pedidoEmEdicaoId === pedido.id) {
+        alert("Este pedido está sendo editado. Salve ou cancele a edição antes de concluí-lo.");
+        return;
+    }
+
+    const identificacao = pedido.codigo || ("Pedido nº " + pedido.numero);
+
+    if (!confirm(`Marcar ${identificacao} como concluído?`)) {
+        return;
+    }
+
+    pedido.status = "Concluído";
+    pedido.concluidoEm = new Date().toISOString();
+
+    salvarDados();
+    renderPedidos();
+});
+
+$(document).on("click", ".btn-reverter-pedido", function() {
+    const id = $(this).data("id");
+    const pedido = dados.pedidos.find(p => p.id === id);
+
+    if (!pedido) {
+        alert("Pedido não encontrado.");
+        return;
+    }
+
+    if (pedido.status !== "Concluído") {
+        return;
+    }
+
+    const identificacao = pedido.codigo || ("Pedido nº " + pedido.numero);
+
+    if (!confirm(`Reverter a conclusão de ${identificacao} e retornar o pedido para Em reserva?`)) {
+        return;
+    }
+
+    pedido.status = "Reservado";
+    pedido.concluidoEm = null;
+
+    salvarDados();
+    renderPedidos();
+});
+
+$(document).on("click", "#btnExcluirTodosConcluidos", function() {
+    const pedidosConcluidos = dados.pedidos.filter(p => p.status === "Concluído");
+
+    if (!pedidosConcluidos.length) {
+        alert("Não há pedidos concluídos para excluir.");
+        return;
+    }
+
+    const saldoTotal = pedidosConcluidos.reduce(
+        (total, pedido) => total + Number(pedido.total || 0),
+        0
+    );
+
+    if (!confirm(
+        `Excluir TODOS os ${pedidosConcluidos.length} pedidos concluídos?\n\n` +
+        `Saldo total que será removido do histórico: ${dinheiro(saldoTotal)}\n\n` +
+        `Os pedidos em reserva serão mantidos e o estoque NÃO será alterado.`
+    )) {
+        return;
+    }
+
+    dados.pedidos = dados.pedidos.filter(p => p.status !== "Concluído");
+
+    salvarDados();
+    renderPedidos();
+
+    alert("Todos os pedidos concluídos foram excluídos com sucesso.");
+});
+
+$(document).on("click", ".btn-excluir-pedido", function() {
+    const id = $(this).data("id");
+    const pedido = dados.pedidos.find(p => p.id === id);
+
+    if (!pedido) {
+        alert("Pedido não encontrado.");
+        return;
+    }
+
+    const identificacao = pedido.codigo || ("Pedido nº " + pedido.numero);
+
+    if (pedidoEmEdicaoId === pedido.id) {
+        alert("Este pedido está sendo editado. Cancele a edição antes de excluí-lo.");
+        return;
+    }
+
+    const concluido = pedido.status === "Concluído";
+    const avisoEstoque = concluido
+        ? "Este pedido já foi concluído. O estoque NÃO será alterado."
+        : "As quantidades de todos os itens deste pedido serão devolvidas ao estoque.";
+
+    if (!confirm(
+        `Excluir ${identificacao} de ${pedido.cliente?.nome || "cliente não informado"}?\n\n` +
+        avisoEstoque
+    )) {
+        return;
+    }
+
+    // Apenas pedidos ainda em reserva devolvem todos os itens ao estoque.
+    if (!concluido) {
+        (pedido.itens || []).forEach(item => {
+            const produto = obterProduto(item.produtoId);
+
+            if (produto) {
+                produto.estoqueFatias = Math.max(
+                    0,
+                    Number(produto.estoqueFatias || 0) + Number(item.quantidade || 0)
+                );
+            }
+        });
+    }
+
+    dados.pedidos = dados.pedidos.filter(p => p.id !== id);
+
+    salvarDados();
+
+    renderPedidos();
+    renderProdutosVenda();
+    renderProdutosAdmin();
+
+    alert(`${identificacao} excluído com sucesso.`);
+});
+
+$(document).on("click", ".btn-imprimir-pedido", function() {
+    const pedido = obterPedidoPorId($(this).data("id"));
+
+    if (!pedido) {
+        alert("Pedido não encontrado.");
+        return;
+    }
+
+    const itens = Array.isArray(pedido.itens) ? pedido.itens : [];
+
+    const linhasItens = itens.length
+        ? itens.map((item, indice) => {
+            const quantidade = Number(item.quantidade || 0);
+            const valorBase = Number(item.valorUnitario || 0);
+            const adicionalCalda = Number(item.calda?.valorAdicional || 0);
+            const valorFinal = Number(
+                item.precoFinalUnitario ?? (valorBase + adicionalCalda)
+            );
+            const subtotal = Number(
+                item.subtotal ?? (valorFinal * quantidade)
+            );
+
+            return `
+                <tr>
+                    <td style="padding:8px;border:1px solid #ccc;vertical-align:top;">
+                        ${indice + 1}
+                    </td>
+                    <td style="padding:8px;border:1px solid #ccc;vertical-align:top;">
+                        <strong>${escapeHtml(item.nome || "Produto")}</strong><br>
+                        <span style="font-size:12px;color:#555;">
+                            Tipo: ${escapeHtml(formatarTipoItem(item.categoria))}<br>
+                            Unidade: ${escapeHtml(item.unidade || "-")}
+                            ${item.categoria === "Tortas" ? `<br>Calda: ${escapeHtml(item.calda?.nome || "Sem Calda")}` : ""}
+                            ${item.categoria === "Tortas" ? `<br>Adicional da calda: ${dinheiro(adicionalCalda)}` : ""}
+                        </span>
+                    </td>
+                    <td style="padding:8px;border:1px solid #ccc;text-align:center;vertical-align:top;">
+                        ${quantidade}
+                    </td>
+                    <td style="padding:8px;border:1px solid #ccc;text-align:right;vertical-align:top;">
+                        ${dinheiro(valorBase)}
+                    </td>
+                    <td style="padding:8px;border:1px solid #ccc;text-align:right;vertical-align:top;">
+                        ${dinheiro(valorFinal)}
+                    </td>
+                    <td style="padding:8px;border:1px solid #ccc;text-align:right;vertical-align:top;">
+                        ${dinheiro(subtotal)}
+                    </td>
+                </tr>
+            `;
+        }).join("")
+        : `
+            <tr>
+                <td colspan="6" style="padding:12px;border:1px solid #ccc;text-align:center;">
+                    Nenhum item registrado neste pedido.
+                </td>
+            </tr>
+        `;
+
+    $("#printArea").html(`
+        <div style="max-width:900px;margin:0 auto;font-family:Arial,sans-serif;color:#111;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border-bottom:2px solid #222;padding-bottom:12px;margin-bottom:16px;">
+                <div>
+                    <div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#666;">
+                        Comprovante de pedido
+                    </div>
+                    <h1 style="font-size:26px;margin:4px 0 0;">
+                        ${escapeHtml(pedido.codigo || ("Pedido nº " + pedido.numero))}
+                    </h1>
+                </div>
+
+                <div style="text-align:right;font-size:13px;line-height:1.5;">
+                    <strong>Nº do pedido:</strong> ${escapeHtml(String(pedido.numero ?? "-"))}<br>
+                    <strong>Status:</strong> ${escapeHtml(pedido.status || "-")}<br>
+                    <strong>Data:</strong> ${escapeHtml(formatarData(pedido.criadoEm))}
+                </div>
+            </div>
+
+            <div style="margin-bottom:18px;padding:12px;border:1px solid #ccc;border-radius:6px;">
+                <div style="font-size:12px;text-transform:uppercase;color:#666;margin-bottom:6px;">
+                    Dados do cliente
+                </div>
+                <strong>Nome:</strong> ${escapeHtml(pedido.cliente?.nome || "Cliente não informado")}<br>
+                <strong>Telefone:</strong> ${escapeHtml(pedido.cliente?.telefone || "-")}<br>
+                <strong>Forma de pagamento:</strong> ${escapeHtml(pedido.formaPagamento || "Não informado")}
+            </div>
+
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                <thead>
+                    <tr style="background:#f2f2f2;">
+                        <th style="padding:8px;border:1px solid #ccc;text-align:left;">#</th>
+                        <th style="padding:8px;border:1px solid #ccc;text-align:left;">Produto / detalhes</th>
+                        <th style="padding:8px;border:1px solid #ccc;text-align:center;">Qtd.</th>
+                        <th style="padding:8px;border:1px solid #ccc;text-align:right;">Valor base</th>
+                        <th style="padding:8px;border:1px solid #ccc;text-align:right;">Valor unitário final</th>
+                        <th style="padding:8px;border:1px solid #ccc;text-align:right;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${linhasItens}
+                </tbody>
+            </table>
+
+            <div style="display:flex;justify-content:flex-end;margin-top:18px;">
+                <div style="min-width:300px;border-top:2px solid #222;padding-top:10px;">
+                    <div style="display:flex;justify-content:space-between;gap:20px;font-size:13px;margin-bottom:5px;">
+                        <span style="color:#555;">Subtotal</span>
+                        <strong>${dinheiro(pedido.subtotal ?? pedido.itens.reduce((t, i) => t + Number(i.subtotal || 0), 0))}</strong>
+                    </div>
+
+                    ${pedido.ajuste?.tipo && Number(pedido.ajuste?.valor || 0) > 0 ? `
+                        <div style="display:flex;justify-content:space-between;gap:20px;font-size:13px;margin-bottom:7px;">
+                            <span style="color:#555;">${pedido.ajuste.tipo === "desconto" ? "Desconto" : "Acréscimo"}</span>
+                            <strong>${pedido.ajuste.tipo === "desconto" ? "-" : "+"}${dinheiro(pedido.ajuste.valor)}</strong>
+                        </div>
+                    ` : ""}
+
+                    <div style="display:flex;justify-content:space-between;gap:20px;align-items:end;border-top:1px solid #ccc;padding-top:8px;">
+                        <span style="font-size:13px;color:#555;">Total do pedido</span>
+                        <span style="font-size:26px;font-weight:700;">${dinheiro(pedido.total)}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:30px;padding-top:10px;border-top:1px solid #ddd;font-size:11px;color:#666;">
+                Código: ${escapeHtml(pedido.codigo || "-")} •
+                Pedido nº ${escapeHtml(String(pedido.numero ?? "-"))} •
+                Registrado em ${escapeHtml(formatarData(pedido.criadoEm))}
+            </div>
+        </div>
+    `);
+
+    window.print();
+});
+
+/* =========================================================
+   BACKUP / IMPORTAÇÃO
+========================================================= */
+
+function baixarJson(nomeArquivo, objeto) {
+    const conteudo = JSON.stringify(objeto, null, 2);
+    const blob = new Blob([conteudo], {
+        type: "application/json;charset=utf-8"
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = nomeArquivo;
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+}
+
+function nomeArquivoData(prefixo) {
+    const agora = new Date();
+    const data = [
+        agora.getFullYear(),
+        String(agora.getMonth() + 1).padStart(2, "0"),
+        String(agora.getDate()).padStart(2, "0")
+    ].join("-");
+
+    return `${prefixo}_${data}.json`;
+}
+
+$("#btnExportarSemArquivos").on("click", function() {
+    const backup = structuredClone(dados);
+    delete backup.arquivos;
+
+    baixarJson(
+        nomeArquivoData("doce_sonho_sistema_sem_eventos"),
+        backup
+    );
+});
+
+$("#btnExportarComArquivos").on("click", function() {
+    baixarJson(
+        nomeArquivoData("doce_sonho_sistema_com_eventos"),
+        dados
+    );
+});
+
+$("#btnExportarArquivos").on("click", function() {
+    const pacote = {
+        tipo: "doce_sonho_eventos_arquivados",
+        versao: 1,
+        exportadoEm: new Date().toISOString(),
+        arquivos: structuredClone(Array.isArray(dados.arquivos) ? dados.arquivos : [])
+    };
+
+    baixarJson(
+        nomeArquivoData("doce_sonho_eventos_arquivados"),
+        pacote
+    );
+});
+
+$("#inputImportar").on("change", function(e) {
+    const arquivo = e.target.files[0];
+
+    if (!arquivo) {
+        return;
+    }
+
+    const leitor = new FileReader();
+
+    leitor.onload = function(event) {
+        try {
+            const importado = JSON.parse(event.target.result);
+
+            if (!importado || typeof importado !== "object" || Array.isArray(importado)) {
+                throw new Error("Estrutura de backup do sistema inválida.");
+            }
+
+            const possuiArquivos = Array.isArray(importado.arquivos);
+            const arquivosAtuais = structuredClone(Array.isArray(dados.arquivos) ? dados.arquivos : []);
+            const novoBanco = normalizarDados(importado);
+
+            if (!possuiArquivos) {
+                novoBanco.arquivos = arquivosAtuais;
+            }
+
+            const mensagem = possuiArquivos
+                ? "A importação substituirá os dados atuais, incluindo os eventos arquivados. Continuar?"
+                : "A importação substituirá os dados operacionais atuais. Os eventos arquivados existentes serão preservados. Continuar?";
+
+            if (!confirm(mensagem)) {
+                return;
+            }
+
+            dados = novoBanco;
+
+            salvarDados();
+
+            carrinho = [];
+            ajusteCarrinho = { tipo: "", valor: 0 };
+
+            renderProdutosVenda();
+            renderCarrinho();
+            renderProdutosAdmin();
+            renderCaldas();
+            renderPedidos();
+            renderArquivados();
+
+            alert(
+                possuiArquivos
+                    ? "Dados do sistema e eventos arquivados importados com sucesso."
+                    : "Dados do sistema importados com sucesso. Os eventos arquivados foram preservados."
+            );
+
+        } catch (erro) {
+            console.error(erro);
+            alert("Arquivo JSON de sistema inválido.");
+        }
+
+        $("#inputImportar").val("");
+    };
+
+    leitor.readAsText(arquivo);
+});
+
+$("#inputImportarArquivos").on("change", function(e) {
+    const arquivo = e.target.files[0];
+
+    if (!arquivo) {
+        return;
+    }
+
+    const leitor = new FileReader();
+
+    leitor.onload = function(event) {
+        try {
+            const importado = JSON.parse(event.target.result);
+
+            let arquivosImportados = [];
+
+            if (
+                importado &&
+                typeof importado === "object" &&
+                !Array.isArray(importado) &&
+                Array.isArray(importado.arquivos)
+            ) {
+                arquivosImportados = importado.arquivos;
+            } else if (Array.isArray(importado)) {
+                arquivosImportados = importado;
+            } else {
+                throw new Error("Arquivo de eventos arquivados inválido.");
+            }
+
+            const normalizados = arquivosImportados.map(normalizarArquivoPedidos);
+
+            if (!normalizados.length) {
+                alert("O arquivo não contém eventos arquivados para importar.");
+                return;
+            }
+
+            if (!confirm(
+                `Importar ${normalizados.length} ${normalizados.length === 1 ? "evento arquivado" : "eventos arquivados"}?
+
+` +
+                "Eventos que já existirem com o mesmo ID não serão duplicados."
+            )) {
+                return;
+            }
+
+            if (!Array.isArray(dados.arquivos)) {
+                dados.arquivos = [];
+            }
+
+            const idsExistentes = new Set(
+                dados.arquivos.map(a => String(a.id || ""))
+            );
+
+            let adicionados = 0;
+            let ignorados = 0;
+
+            normalizados.forEach(evento => {
+                const id = String(evento.id || "");
+
+                if (id && idsExistentes.has(id)) {
+                    ignorados += 1;
+                    return;
+                }
+
+                dados.arquivos.push(evento);
+                if (id) {
+                    idsExistentes.add(id);
+                }
+                adicionados += 1;
+            });
+
+            dados.arquivos.sort((a, b) => {
+                return new Date(b.arquivadoEm || 0) - new Date(a.arquivadoEm || 0);
+            });
+
+            salvarDados();
+            renderArquivados();
+
+            alert(
+                `${adicionados} ${adicionados === 1 ? "evento importado" : "eventos importados"}` +
+                (ignorados ? `; ${ignorados} já ${ignorados === 1 ? "existia e foi ignorado" : "existiam e foram ignorados"}.` : ".")
+            );
+
+        } catch (erro) {
+            console.error(erro);
+            alert("Arquivo JSON de eventos arquivados inválido.");
+        }
+
+        $("#inputImportarArquivos").val("");
+    };
+
+    leitor.readAsText(arquivo);
+});
+
+function atualizarProximoPedidoDados() {
+    const numero = Number(dados.configuracao?.proximoPedido || 1);
+    $("#proximoPedidoDados").text(
+        "PED-" + String(numero).padStart(5, "0")
+    );
+}
+
+$("#backupModal").on("show.bs.modal", function() {
+    atualizarProximoPedidoDados();
+    renderEstadoContaSupabase();
+});
+
+$("#btnZerarContagemPedidos").on("click", function() {
+    const confirmacao = prompt(
+        'Isso fará o próximo pedido voltar para PED-00001 sem apagar o histórico.\n' +
+        'Se já existirem pedidos antigos com esses números, poderão existir códigos repetidos.\n\n' +
+        'Para confirmar, digite: ZERAR'
+    );
+
+    if (confirmacao !== "ZERAR") {
+        return;
+    }
+
+    dados.configuracao.proximoPedido = 1;
+    salvarDados();
+    atualizarProximoPedidoDados();
+
+    alert("Contagem zerada. O próximo pedido será PED-00001.");
+});
+
+$("#btnApagarDados").on("click", function() {
+    const confirmacao = prompt(
+        'Para apagar todos os dados, digite: APAGAR'
+    );
+
+    if (confirmacao !== "APAGAR") {
+        return;
+    }
+
+    dados = structuredClone(MODELO_DADOS);
+    carrinho = [];
+    ajusteCarrinho = { tipo: "", valor: 0 };
+
+    salvarDados();
+    renderProdutosVenda();
+    renderCarrinho();
+    renderProdutosAdmin();
+    renderCaldas();
+    renderPedidos();
+    renderArquivados();
+
+    alert("Todos os dados foram apagados. Se estiver online, a exclusão também será sincronizada.");
+});
+
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
+
+function inicializar() {
+    salvarDados();
+
+    renderProdutosVenda();
+    renderCarrinho();
+    renderProdutosAdmin();
+    renderCaldas();
+    renderPedidos();
+    renderArquivados();
+
+    abrirPagina("venda");
+}
+
+inicializar();
+inicializarSupabaseOnline();
+
+</script>
+
+</body>
+</html>
